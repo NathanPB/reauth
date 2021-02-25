@@ -18,6 +18,10 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:1.5.1")
     implementation("io.ktor:ktor-serialization:1.5.1")
     implementation("org.slf4j:slf4j-simple:1.7.30")
+    implementation("com.github.kittinunf.fuel:fuel:2.3.1")
+    implementation("com.github.kittinunf.fuel:fuel-coroutines:2.3.1")
+    implementation("com.github.kittinunf.fuel:fuel-kotlinx-serialization:2.3.1")
+
     testImplementation("junit", "junit", "4.12")
 }
 

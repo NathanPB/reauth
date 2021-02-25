@@ -19,11 +19,15 @@
 
 package dev.nathanpb.reauth
 
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.coroutines.awaitObjectResult
+import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import io.ktor.http.*
 
 class OAuth2Dealer(val provider: OAuth2Provider) {
 
-    var code: String? = null
+    private var code: String? = null
+    private var token: OAuth2Token? = null
 
     fun buildRedirectURL(): Url {
         return URLBuilder(provider.authorizeURL).apply {
@@ -46,5 +50,33 @@ class OAuth2Dealer(val provider: OAuth2Provider) {
         }
 
         this.code = code
+    }
+
+    private suspend fun exchangeToken() {
+        if (code == null) {
+            error("Dealer does not have an exchange code")
+        }
+
+        // https://tools.ietf.org/html/rfc6749#section-4.1.3
+        token = Fuel.post(
+            provider.tokenURL,
+            listOf(
+                "client_id" to provider.clientId,
+                "client_secret" to provider.clientSecret,
+                "grant_type" to "authorization_code",
+                "code" to code,
+                "redirect_uri" to URLBuilder(BASE_URL).path("receiver/${provider.id}").buildString()
+            )
+        ).awaitObjectResult<OAuth2Token>(kotlinxDeserializerOf())
+            .get()
+
+    }
+
+    suspend fun getAccessToken(): OAuth2Token {
+        if (token?.isExpired() != false) {
+            exchangeToken()
+        }
+
+        return token ?: error("Unexpected state: Token somehow was not set")
     }
 }

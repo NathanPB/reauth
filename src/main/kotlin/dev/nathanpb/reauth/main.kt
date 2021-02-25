@@ -57,6 +57,8 @@ fun main() {
 
                         try {
                             dealer.receiveRedirect(code, error)
+                            dealer.getAccessToken()
+                            call.respond(dealer.getAccessToken())
                         } catch (e: OAuth2AuthorizeException) {
                             with(HttpStatusCode) {
                                 if (e.error.statusCode in listOf(NotImplemented, BadRequest, BadGateway)) {
@@ -69,8 +71,6 @@ fun main() {
                             e.printStackTrace()
                             return@get call.respond(HttpStatusCode.InternalServerError)
                         }
-
-                        // TODO continue the token exchange process
                     }
                 }
             }

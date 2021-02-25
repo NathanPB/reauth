@@ -28,7 +28,7 @@ import kotlin.io.path.readText
 val PORT = System.getenv("PORT")?.toIntOrNull() ?: 6660
 val PROVIDERS_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./providers.json")
 val BASE_URL = System.getenv("BASE_URL") ?: error("BASE_URL is not set")
-
+val REDIRECT_URL = System.getenv("REDIRECT_URL") ?: error("REDIRECT_URL is not set")
 
 @OptIn(ExperimentalPathApi::class)
 val PROVIDERS = run {
