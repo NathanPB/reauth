@@ -17,11 +17,15 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth
+package dev.nathanpb.reauth.oauth.client
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.coroutines.awaitObjectResult
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
+import dev.nathanpb.reauth.BASE_URL
+import dev.nathanpb.reauth.oauth.AuthorizationError
+import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
+import dev.nathanpb.reauth.oauth.OAuth2Token
 import io.ktor.http.*
 
 class OAuth2Dealer(val provider: OAuth2Provider) {

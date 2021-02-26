@@ -17,13 +17,24 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth
+package dev.nathanpb.reauth.oauth
 
-data class OAuth2Provider (
-    val id: String,
-    val clientId: String,
-    val clientSecret: String,
-    val scopes: List<String>,
-    val authorizeURL: String,
-    val tokenURL: String,
-)
+import io.ktor.http.*
+
+// https://tools.ietf.org/html/rfc6749#section-4.1.2.1
+enum class AuthorizationError(val statusCode: HttpStatusCode, errorString: String? = null) {
+
+    INVALID_REQUEST(HttpStatusCode.BadRequest),
+    UNAUTHORIZED_CLIENT(HttpStatusCode.Forbidden),
+    ACCESS_DENIED(HttpStatusCode.Unauthorized),
+    UNSUPPORTED_RESPONSE_TYPE(HttpStatusCode.NotImplemented),
+    INVALID_SCOPE(HttpStatusCode.BadRequest),
+    SERVER_ERROR(HttpStatusCode.ServiceUnavailable),
+    TEMPORARILY_UNAVAILABLE(HttpStatusCode.ServiceUnavailable);
+
+    companion object {
+        fun parse(error: String) = values().firstOrNull { it.errorString == error }
+    }
+
+    val errorString = errorString ?: name.toLowerCase()
+}

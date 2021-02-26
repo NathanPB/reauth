@@ -17,7 +17,7 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth
+package dev.nathanpb.reauth.oauth
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

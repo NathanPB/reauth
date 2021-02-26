@@ -19,6 +19,7 @@
 
 package dev.nathanpb.reauth
 
+import dev.nathanpb.reauth.oauth.client.OAuth2Provider
 import kotlinx.serialization.json.*
 import java.nio.file.Path
 import java.nio.file.Paths

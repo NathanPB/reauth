@@ -17,7 +17,13 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth
+package dev.nathanpb.reauth.oauth.client
 
-class OAuth2AuthorizeException (val provider: OAuth2Provider, val error: AuthorizationError)
-    : Exception("${provider.id} responded with ${error.errorString}")
+data class OAuth2Provider (
+    val id: String,
+    val clientId: String,
+    val clientSecret: String,
+    val scopes: List<String>,
+    val authorizeURL: String,
+    val tokenURL: String,
+)
