@@ -5,6 +5,8 @@
     "clientSecret": "example_secret",
     "scopes": ["identify", "email"],
     "authorizeURL": "https://example.com/api/oauth2/authorize",
-    "tokenURL": "https://example.com/api/oauth2/token"
+    "tokenURL": "https://example.com/api/oauth2/token",
+    "linkageField": "email",
+    "idField": "id"
   }
 ]

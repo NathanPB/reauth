@@ -17,15 +17,11 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.oauth.client
+package dev.nathanpb.reauth
 
-data class OAuth2Provider (
-    val id: String,
-    val clientId: String,
-    val clientSecret: String,
-    val scopes: List<String>,
-    val authorizeURL: String,
-    val tokenURL: String,
-    val linkageField: String,
-    val idField: String
-)
+import java.security.MessageDigest
+
+
+private val md5 = MessageDigest.getInstance("MD5")
+
+fun md5Hex(input: String) = String(md5.digest(input.toByteArray()))

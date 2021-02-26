@@ -21,6 +21,7 @@ package dev.nathanpb.reauth.oauth
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.bson.Document
 import java.time.Instant
 
 // https://tools.ietf.org/html/rfc6749#section-4.2.2
@@ -32,14 +33,23 @@ data class OAuth2Token(
     @SerialName("refresh_token") val refreshToken: String? = null, // TODO refresh the tokens when they are about to expire
     val scope: String? = null,
     val state: String? = null,
+    val createdAt: Long = Instant.now().epochSecond
 ) {
-    val createdAt = Instant.now().epochSecond
-
     fun isExpired() : Boolean {
         return if (expiresIn == null) {
             false // TODO validate with the token issuer
         } else {
             Instant.now().epochSecond >= createdAt + expiresIn
         }
+    }
+
+    fun document() = Document().also {
+        it["access_token"] = accessToken
+        it["token_type"] = tokenType
+        it["expires_in"] = expiresIn
+        it["refresh_token"] = refreshToken
+        it["scope"] = scope
+        it["state"] = state
+        it["createdAt"] = createdAt
     }
 }

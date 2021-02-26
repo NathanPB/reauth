@@ -50,6 +50,8 @@ val PROVIDERS = run {
                     .orEmpty(),
                 it["authorizeURL"]?.jsonPrimitive?.content ?: error("Authorize URL is not set"),
                 it["tokenURL"]?.jsonPrimitive?.content ?: error("Token URL is not set"),
+                it["linkageField"]?.jsonPrimitive?.content ?: "email",
+                it["idField"]?.jsonPrimitive?.content ?: "id"
             )
         }
 
