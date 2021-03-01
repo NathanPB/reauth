@@ -17,7 +17,7 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.user
+package dev.nathanpb.reauth.controller
 
 import com.mongodb.client.model.Filters
 import dev.nathanpb.reauth.data.Identity
@@ -35,7 +35,7 @@ object IdentityController {
         val idData = data[provider.idField] ?: error("No id field '${provider.idField}' found")
         val linkageData = data[provider.linkageField] ?: error("No linkage field '${provider.linkageField}' found")
 
-        // Generates a user identifier based in the linkage field (usually email)
+        // Generates a controller identifier based in the linkage field (usually email)
         // MD5 because its fast, appropriated size, and this should not be really secret
         val uid = md5Hex(data[provider.linkageField]?.toString().orEmpty())
 

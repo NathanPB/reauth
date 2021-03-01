@@ -21,7 +21,7 @@ package dev.nathanpb.reauth
 
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.client.OAuth2Dealer
-import dev.nathanpb.reauth.user.IdentityController
+import dev.nathanpb.reauth.controller.IdentityController
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
