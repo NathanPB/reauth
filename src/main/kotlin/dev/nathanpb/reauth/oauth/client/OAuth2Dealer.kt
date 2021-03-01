@@ -21,17 +21,20 @@ package dev.nathanpb.reauth.oauth.client
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.coroutines.awaitObjectResult
+import com.github.kittinunf.fuel.coroutines.awaitStringResponse
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import dev.nathanpb.reauth.BASE_URL
 import dev.nathanpb.reauth.oauth.AuthorizationError
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import io.ktor.http.*
+import org.bson.Document
 
 class OAuth2Dealer(val provider: OAuth2Provider) {
 
     private var code: String? = null
     private var token: OAuth2Token? = null
+    private var userData: Map<String, Any>? = null
 
     fun buildRedirectURL(): Url {
         return URLBuilder(provider.authorizeURL).apply {
@@ -82,5 +85,15 @@ class OAuth2Dealer(val provider: OAuth2Provider) {
         }
 
         return token ?: error("Unexpected state: Token somehow was not set")
+    }
+
+    suspend fun getUserData(): Map<String, Any> {
+        return userData ?: kotlin.run {
+            val token = getAccessToken()
+            Fuel.get(provider.userDataURL)
+                .header("Authorization", "${token.tokenType} ${token.accessToken}")
+                .awaitStringResponse()
+                .let { Document.parse(it.third).toMap() }
+        }
     }
 }

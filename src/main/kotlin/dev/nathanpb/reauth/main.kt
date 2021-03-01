@@ -22,6 +22,7 @@ package dev.nathanpb.reauth
 import com.mongodb.client.MongoClients
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.client.OAuth2Dealer
+import dev.nathanpb.reauth.user.IdentityController
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
@@ -69,8 +70,13 @@ fun main() {
 
                         try {
                             dealer.receiveRedirect(code, error)
-                            dealer.getAccessToken()
-                            call.respond(dealer.getAccessToken())
+                            call.respond(
+                                IdentityController.saveIdentity(
+                                    dealer.getAccessToken(),
+                                    dealer.provider,
+                                    dealer.getUserData()
+                                )
+                            )
                         } catch (e: OAuth2AuthorizeException) {
                             with(HttpStatusCode) {
                                 if (e.error.statusCode in listOf(NotImplemented, BadRequest, BadGateway)) {

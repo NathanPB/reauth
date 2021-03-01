@@ -25,6 +25,7 @@ data class OAuth2Provider (
     val clientSecret: String,
     val scopes: List<String>,
     val authorizeURL: String,
+    val userDataURL: String,
     val tokenURL: String,
     val linkageField: String,
     val idField: String
