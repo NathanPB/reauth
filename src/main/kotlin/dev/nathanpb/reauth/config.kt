@@ -49,6 +49,7 @@ val PROVIDERS = run {
                     ?.map(JsonPrimitive::content)
                     .orEmpty(),
                 it["authorizeURL"]?.jsonPrimitive?.content ?: error("Authorize URL is not set"),
+                it["userDataURL"]?.jsonPrimitive?.content ?: error("User Data Endpoint URL is not set"),
                 it["tokenURL"]?.jsonPrimitive?.content ?: error("Token URL is not set"),
                 it["linkageField"]?.jsonPrimitive?.content ?: "email",
                 it["idField"]?.jsonPrimitive?.content ?: "id"
