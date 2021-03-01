@@ -21,7 +21,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
     implementation("com.github.kittinunf.fuel:fuel-coroutines:2.3.1")
     implementation("com.github.kittinunf.fuel:fuel-kotlinx-serialization:2.3.1")
-    implementation("org.mongodb:mongo-java-driver:3.12.8")
+    implementation("org.litote.kmongo:kmongo-coroutine-serialization:4.2.4")
 
     testImplementation("junit", "junit", "4.12")
 }

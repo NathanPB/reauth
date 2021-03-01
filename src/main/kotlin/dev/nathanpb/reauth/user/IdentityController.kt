@@ -20,17 +20,16 @@
 package dev.nathanpb.reauth.user
 
 import com.mongodb.client.model.Filters
-import com.mongodb.client.model.Updates
-import dev.nathanpb.reauth.identities
+import dev.nathanpb.reauth.data.Identity
 import dev.nathanpb.reauth.md5Hex
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import dev.nathanpb.reauth.oauth.client.OAuth2Provider
 import org.bson.Document
-import java.util.*
+import org.litote.kmongo.*
 
 object IdentityController {
 
-    fun saveIdentity(token: OAuth2Token, provider: OAuth2Provider, data: Map<String, Any>): Document {
+    suspend fun saveIdentity(token: OAuth2Token, provider: OAuth2Provider, data: Map<String, Any>): Identity {
 
         // Asserts that the id and linkage fields that are going to be used exists
         val idData = data[provider.idField] ?: error("No id field '${provider.idField}' found")
@@ -44,11 +43,12 @@ object IdentityController {
         // Looks for documents with matching uid, data[idField] or data[linkageField] (usually email)
         // Only matches documents that belongs to the same provider
         // If any found, replaces the data and the token and returns the identity
-        val updateExistingIdentify = identities.findOneAndUpdate(
-            Filters.and(
-                Filters.eq("provider", provider.id),
-                Filters.or(
-                    Filters.eq("uid", uid),
+
+        val updateExistingIdentify = Identity.collection.findOneAndUpdate(
+            and(
+                Identity::provider eq provider.id,
+                or(
+                    Identity::uid eq uid,
                     Filters.eq("data.${provider.idField}", idData),
                     Filters.eq("data.${provider.linkageField}", linkageData)
                 )
@@ -56,9 +56,9 @@ object IdentityController {
             // Do not replace uid even if its out of sync with the current linkage field
             //   e.g. User logs in for the first time with Discord, then changes its Discord email and attempts to log in again
             //   in this situation, the old uid (based in the old email address) will be kept
-            Updates.combine(
-                Updates.set("data", Document(data)),
-                Updates.set("token", token.document())
+            combine(
+                set(SetTo(Identity::data, Document(data))),
+                set(SetTo(Identity::token, token))
             )
         )
 
@@ -67,19 +67,17 @@ object IdentityController {
         }
 
         // If not already existing, create a brand new identity
-        return Document()
-            .append("_id", UUID.randomUUID().toString())
-            .append("uid", uid)
-            .append("data", Document(data))
-            .append("token", token.document())
-            .also(identities::insertOne)
+        return Identity(
+            uid = uid,
+            provider = provider.id,
+            data = Document(data),
+            token = token
+        ).also {
+            Identity.collection.insertOne(it)
+        }
     }
 
-    fun findIdentities(uid: String): List<Document> {
-        return identities.find(Filters.eq("uid", uid)).toList()
-    }
-
-    fun removeSensitiveData(identity: Document) = Document(identity).apply {
-        remove("token")
+    suspend fun findIdentities(uid: String): List<Identity> {
+        return Identity.collection.find(Identity::uid eq uid).toList()
     }
 }

@@ -19,7 +19,6 @@
 
 package dev.nathanpb.reauth
 
-import com.mongodb.client.MongoClients
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.client.OAuth2Dealer
 import dev.nathanpb.reauth.user.IdentityController
@@ -31,18 +30,17 @@ import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import org.litote.kmongo.coroutine.coroutine
+import org.litote.kmongo.id.IdGenerator
+import org.litote.kmongo.id.UUIDStringIdGenerator
+import org.litote.kmongo.reactivestreams.KMongo
 import java.lang.Exception
 
-val mongoClient = MongoClients.create(System.getenv("MONGO_CONN_STRING") ?: error("MONGO_CONN_STRING is not set"))
-val mongoDb = mongoClient.getDatabase(System.getenv("MONGO_DB_NAME") ?: error("MONGO_DB_NAME is not set"))
-val identities = mongoDb.listCollectionNames().let {
-    if ("identities" !in it) {
-        mongoDb.createCollection("identities")
-    }
-    mongoDb.getCollection("identities")
-}
+val mongoClient = KMongo.createClient(System.getenv("MONGO_CONN_STRING") ?: error("MONGO_CONN_STRING is not set")).coroutine
+val mongoDb = mongoClient.getDatabase(System.getenv("MONGO_DB_NAME") ?: "reauth")
 
 fun main() {
+    IdGenerator.defaultGenerator = UUIDStringIdGenerator
     embeddedServer(Netty, PORT) {
 
         install(CallLogging)

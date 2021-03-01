@@ -17,29 +17,26 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.oauth
+package dev.nathanpb.reauth.data
 
+import dev.nathanpb.reauth.mongoDb
+import dev.nathanpb.reauth.oauth.OAuth2Token
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.Document
-import java.time.Instant
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
 
-// https://tools.ietf.org/html/rfc6749#section-4.2.2
 @Serializable
-data class OAuth2Token(
-    @SerialName("access_token") val accessToken: String,
-    @SerialName("token_type") val tokenType: String,
-    @SerialName("expires_in") val expiresIn: Int? = null,
-    @SerialName("refresh_token") val refreshToken: String? = null, // TODO refresh the tokens when they are about to expire
-    val scope: String? = null,
-    val state: String? = null,
-    val createdAt: Long = Instant.now().epochSecond
+data class Identity(
+    @Contextual @SerialName("_id") val id: Id<Identity> = newId(),
+    val uid: String,
+    val provider: String,
+    @Contextual val data: Document,
+    val token: OAuth2Token
 ) {
-    fun isExpired() : Boolean {
-        return if (expiresIn == null) {
-            false // TODO validate with the token issuer
-        } else {
-            Instant.now().epochSecond >= createdAt + expiresIn
-        }
+    companion object {
+        val collection = mongoDb.getCollection<Identity>()
     }
 }
