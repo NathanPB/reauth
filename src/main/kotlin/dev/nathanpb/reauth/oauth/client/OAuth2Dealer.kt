@@ -36,7 +36,7 @@ class OAuth2Dealer(val provider: OAuth2Provider) {
     private var token: OAuth2Token? = null
     private var userData: Map<String, Any>? = null
 
-    fun buildRedirectURL(): Url {
+    fun buildAuthorizeURL(): Url {
         return URLBuilder(provider.authorizeURL).apply {
             parameters["response_type"] = "code"
             parameters["client_id"] = provider.clientId

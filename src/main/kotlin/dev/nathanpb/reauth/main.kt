@@ -19,9 +19,11 @@
 
 package dev.nathanpb.reauth
 
+import dev.nathanpb.reauth.controller.AuthCodeController
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.client.OAuth2Dealer
 import dev.nathanpb.reauth.controller.IdentityController
+import dev.nathanpb.reauth.oauth.OAuth2Token
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
@@ -54,7 +56,7 @@ fun main() {
                 PROVIDERS.forEach { provider ->
                     get(provider.id) {
                         val dealer = OAuth2Dealer(provider)
-                        call.respondRedirect(dealer.buildRedirectURL().toString())
+                        call.respondRedirect(dealer.buildAuthorizeURL().toString())
                     }
                 }
             }
@@ -68,13 +70,20 @@ fun main() {
 
                         try {
                             dealer.receiveRedirect(code, error)
-                            call.respond(
-                                IdentityController.saveIdentity(
-                                    dealer.getAccessToken(),
-                                    dealer.provider,
-                                    dealer.getUserData()
-                                )
-                            )
+                            val uid = IdentityController.saveIdentity(
+                                dealer.getAccessToken(),
+                                dealer.provider,
+                                dealer.getUserData()
+                            ).uid
+
+                            val token = OAuth2Token.newBearerToken(uid, CLIENT_ID, emptyList())
+
+                            // TODO implement the "state" parameter. https://tools.ietf.org/html/rfc6749#section-4.1.2
+                            val redirectURL = URLBuilder(REDIRECT_URL).apply {
+                                parameters["code"] = AuthCodeController.putTokenInThePool(token)
+                            }
+
+                            call.respondRedirect(redirectURL.buildString(), false)
                         } catch (e: OAuth2AuthorizeException) {
                             with(HttpStatusCode) {
                                 if (e.error.statusCode in listOf(NotImplemented, BadRequest, BadGateway)) {

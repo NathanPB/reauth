@@ -19,9 +19,38 @@
 
 package dev.nathanpb.reauth
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import com.mongodb.internal.HexUtils
 import java.security.MessageDigest
+import java.security.SecureRandom
 
 
 private val md5 = MessageDigest.getInstance("MD5")
 
+val hmac256 = Algorithm.HMAC256(CLIENT_SECRET)
+
+
+fun verifyJwt(jwt: String, uid: String?, clientId: String, requiredScopes: List<String> = emptyList()) : Boolean {
+    return runCatching {
+        JWT.require(hmac256)
+            .apply {
+                if (uid != null) {
+                    withClaim("uid", uid)
+                }
+            }
+            .withClaim("client_id", clientId)
+            .withArrayClaim("scope", *requiredScopes.toTypedArray())
+            .withIssuer(ISSUER)
+            .build()
+            .verify(jwt)
+    }.isSuccess
+}
+
 fun md5Hex(input: String) = String(md5.digest(input.toByteArray()))
+
+fun randomHex(byteSize: Int) : String {
+    val array = ByteArray(byteSize)
+    SecureRandom().nextBytes(array)
+    return HexUtils.toHex(array)
+}
