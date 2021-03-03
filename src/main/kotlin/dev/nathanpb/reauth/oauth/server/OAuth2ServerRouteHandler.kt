@@ -28,7 +28,9 @@ import dev.nathanpb.reauth.data.AuthorizeEndpointParams
 import dev.nathanpb.reauth.data.TokenEndpointParams
 import io.ktor.application.*
 import io.ktor.http.*
+import io.ktor.request.*
 import io.ktor.response.*
+import kotlinx.serialization.SerializationException
 import java.security.InvalidParameterException
 
 object OAuth2ServerRouteHandler {
@@ -68,7 +70,7 @@ object OAuth2ServerRouteHandler {
 
     suspend fun handleToken(call: ApplicationCall) {
         val params = try {
-            TokenEndpointParams.receive(call.request.queryParameters).apply {
+            call.receive<TokenEndpointParams>().apply {
                 if (grantType != "authorization_code") {
                     return call.respond(HttpStatusCode.NotImplemented, "\"${grantType}\" is invalid or not implemented")
                 }
@@ -77,7 +79,7 @@ object OAuth2ServerRouteHandler {
                     return call.respond(HttpStatusCode.Unauthorized, "\"client_secret\" is not present")
                 }
             }
-        } catch (e: InvalidParameterException) {
+        } catch (e: SerializationException) {
             return call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
         }
 

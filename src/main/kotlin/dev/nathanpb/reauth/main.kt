@@ -20,8 +20,6 @@
 package dev.nathanpb.reauth
 
 import dev.nathanpb.reauth.controller.IdentityController
-import dev.nathanpb.reauth.controller.SessionNoncePool
-import dev.nathanpb.reauth.data.AuthorizeEndpointParams
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
 import io.ktor.application.*
@@ -37,7 +35,6 @@ import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.UUIDStringIdGenerator
 import org.litote.kmongo.reactivestreams.KMongo
-import java.security.InvalidParameterException
 
 val mongoClient = KMongo.createClient(System.getenv("MONGO_CONN_STRING") ?: error("MONGO_CONN_STRING is not set")).coroutine
 val mongoDb = mongoClient.getDatabase(System.getenv("MONGO_DB_NAME") ?: "reauth")
@@ -58,7 +55,7 @@ fun main() {
                     OAuth2ServerRouteHandler.handleAuthorize(call)
                 }
 
-                get("token") {
+                post("token") {
                     OAuth2ServerRouteHandler.handleToken(call)
                 }
             }

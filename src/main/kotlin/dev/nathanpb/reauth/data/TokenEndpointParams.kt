@@ -19,24 +19,15 @@
 
 package dev.nathanpb.reauth.data
 
-import io.ktor.http.*
-import java.security.InvalidParameterException
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 // https://tools.ietf.org/html/rfc6749#section-4.1.3
+@Serializable
 data class TokenEndpointParams (
-    val grantType: String,
-    val code: String,
-    val redirectUri: String,
-    val clientId: String,
-    val clientSecret: String? // why is it not in the specification? Guess I'm missing something
-) {
-    companion object {
-        fun receive(params: Parameters) = TokenEndpointParams(
-            params["grant_type"] ?: throw InvalidParameterException("missing grant_type"),
-            params["code"] ?: throw InvalidParameterException("missing code"),
-            params["redirect_uri"] ?: throw InvalidParameterException("missing redirect_uri"),
-            params["client_id"] ?: throw InvalidParameterException("missing client_id"),
-            params["client_secret"]
-        )
-    }
-}
+    @SerialName("grant_type")    val grantType: String,
+    @SerialName("code")          val code: String,
+    @SerialName("redirect_uri")  val redirectUri: String,
+    @SerialName("client_id")     val clientId: String,
+    @SerialName("client_secret") val clientSecret: String? = null // why is it not in the specification? Guess I'm missing something
+)
