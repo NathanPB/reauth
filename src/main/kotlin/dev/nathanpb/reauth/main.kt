@@ -52,49 +52,47 @@ fun main() {
 
         routing {
 
-            route("authenticate") {
+            route("providers") {
                 PROVIDERS.forEach { provider ->
-                    get(provider.id) {
-                        val dealer = OAuth2Dealer(provider)
-                        call.respondRedirect(dealer.buildAuthorizeURL().toString())
-                    }
-                }
-            }
+                    route(provider.id) {
+                        get("authorize") {
+                            val dealer = OAuth2Dealer(provider)
+                            call.respondRedirect(dealer.buildAuthorizeURL().toString())
+                        }
 
-            route("receiver") {
-                PROVIDERS.forEach { provider ->
-                    get(provider.id) {
-                        val code = call.request.queryParameters["code"]
-                        val error = call.request.queryParameters["error"]
-                        val dealer = OAuth2Dealer(provider)
+                        get("callback") {
+                            val code = call.request.queryParameters["code"]
+                            val error = call.request.queryParameters["error"]
+                            val dealer = OAuth2Dealer(provider)
 
-                        try {
-                            dealer.receiveRedirect(code, error)
-                            val uid = IdentityController.saveIdentity(
-                                dealer.getAccessToken(),
-                                dealer.provider,
-                                dealer.getUserData()
-                            ).uid
+                            try {
+                                dealer.receiveRedirect(code, error)
+                                val uid = IdentityController.saveIdentity(
+                                    dealer.getAccessToken(),
+                                    dealer.provider,
+                                    dealer.getUserData()
+                                ).uid
 
-                            val token = OAuth2Token.newBearerToken(uid, CLIENT_ID, emptyList())
+                                val token = OAuth2Token.newBearerToken(uid, CLIENT_ID, emptyList())
 
-                            // TODO implement the "state" parameter. https://tools.ietf.org/html/rfc6749#section-4.1.2
-                            val redirectURL = URLBuilder(REDIRECT_URL).apply {
-                                parameters["code"] = AuthCodeController.putTokenInThePool(token)
-                            }
-
-                            call.respondRedirect(redirectURL.buildString(), false)
-                        } catch (e: OAuth2AuthorizeException) {
-                            with(HttpStatusCode) {
-                                if (e.error.statusCode in listOf(NotImplemented, BadRequest, BadGateway)) {
-                                    e.printStackTrace()
+                                // TODO implement the "state" parameter. https://tools.ietf.org/html/rfc6749#section-4.1.2
+                                val redirectURL = URLBuilder(REDIRECT_URL).apply {
+                                    parameters["code"] = AuthCodeController.putTokenInThePool(token)
                                 }
-                            }
 
-                            return@get call.respond(e.error.statusCode, e.message.orEmpty())
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            return@get call.respond(HttpStatusCode.InternalServerError)
+                                call.respondRedirect(redirectURL.buildString(), false)
+                            } catch (e: OAuth2AuthorizeException) {
+                                with(HttpStatusCode) {
+                                    if (e.error.statusCode in listOf(NotImplemented, BadRequest, BadGateway)) {
+                                        e.printStackTrace()
+                                    }
+                                }
+
+                                return@get call.respond(e.error.statusCode, e.message.orEmpty())
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                return@get call.respond(HttpStatusCode.InternalServerError)
+                            }
                         }
                     }
                 }

@@ -40,7 +40,7 @@ class OAuth2Dealer(val provider: OAuth2Provider) {
         return URLBuilder(provider.authorizeURL).apply {
             parameters["response_type"] = "code"
             parameters["client_id"] = provider.clientId
-            parameters["redirect_uri"] = URLBuilder(BASE_URL).path("receiver/${provider.id}").buildString()
+            parameters["redirect_uri"] = URLBuilder(BASE_URL).path("providers/${provider.id}/callback").buildString()
             parameters["scope"] = provider.scopes.joinToString(" ")
         }.build()
     }
