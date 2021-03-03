@@ -19,6 +19,7 @@
 
 package dev.nathanpb.reauth
 
+import dev.nathanpb.reauth.controller.IdentityController
 import dev.nathanpb.reauth.controller.SessionNoncePool
 import dev.nathanpb.reauth.data.AuthorizeEndpointParams
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
@@ -26,6 +27,7 @@ import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
@@ -58,6 +60,17 @@ fun main() {
 
                 get("token") {
                     OAuth2ServerRouteHandler.handleToken(call)
+                }
+            }
+
+            get("identity/{uid}") {
+                val token = call.request.header("Authorization") ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                val uid = call.parameters["uid"]!!
+
+                return@get if (verifyJwt(token, uid, CLIENT_ID)) {
+                    call.respond(IdentityController.findIdentities(uid))
+                } else {
+                    call.respond(HttpStatusCode.Forbidden)
                 }
             }
 
