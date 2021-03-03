@@ -24,7 +24,7 @@ import dev.nathanpb.reauth.data.AuthorizeEndpointParams
 import dev.nathanpb.reauth.randomHex
 import java.util.concurrent.TimeUnit
 
-object SectionNoncePool {
+object SessionNoncePool {
 
     private val noncePool = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)

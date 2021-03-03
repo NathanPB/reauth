@@ -23,7 +23,7 @@ import dev.nathanpb.reauth.controller.AuthCodeController
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.client.OAuth2Dealer
 import dev.nathanpb.reauth.controller.IdentityController
-import dev.nathanpb.reauth.controller.SectionNoncePool
+import dev.nathanpb.reauth.controller.SessionNoncePool
 import dev.nathanpb.reauth.data.AuthorizeEndpointParams
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import io.ktor.application.*
@@ -83,7 +83,7 @@ fun main() {
 
                     call.respondRedirect(
                         URLBuilder(APP_AUTHORIZE_URL).apply {
-                            parameters["nonce"] = SectionNoncePool.put(params)
+                            parameters["nonce"] = SessionNoncePool.put(params)
                         }.buildString(),
                         false
                     )
@@ -95,7 +95,7 @@ fun main() {
                     route(provider.id) {
                         get("authorize") {
                             val nonceParam = call.request.queryParameters["nonce"] ?: return@get call.respond(HttpStatusCode.BadRequest, "missing \"nonce\" parameter")
-                            SectionNoncePool.retrieve(nonceParam) ?: return@get call.respond(HttpStatusCode.NotFound, "session not found")
+                            SessionNoncePool.retrieve(nonceParam) ?: return@get call.respond(HttpStatusCode.NotFound, "session not found")
 
                             val dealer = OAuth2Dealer(provider)
                             call.respondRedirect(dealer.buildAuthorizeURL().toString())
