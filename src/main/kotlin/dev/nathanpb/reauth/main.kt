@@ -23,6 +23,8 @@ import dev.nathanpb.reauth.controller.AuthCodeController
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.client.OAuth2Dealer
 import dev.nathanpb.reauth.controller.IdentityController
+import dev.nathanpb.reauth.controller.SectionNoncePool
+import dev.nathanpb.reauth.data.AuthorizeEndpointParams
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import io.ktor.application.*
 import io.ktor.features.*
@@ -37,6 +39,7 @@ import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.UUIDStringIdGenerator
 import org.litote.kmongo.reactivestreams.KMongo
 import java.lang.Exception
+import java.security.InvalidParameterException
 
 val mongoClient = KMongo.createClient(System.getenv("MONGO_CONN_STRING") ?: error("MONGO_CONN_STRING is not set")).coroutine
 val mongoDb = mongoClient.getDatabase(System.getenv("MONGO_DB_NAME") ?: "reauth")
@@ -52,10 +55,48 @@ fun main() {
 
         routing {
 
+            route("oauth") {
+                get("authorize") {
+                    val params = try {
+                        AuthorizeEndpointParams.receive(call.request.queryParameters).apply {
+                            if (responseType != "code") {
+                                return@get call.respond(HttpStatusCode.NotImplemented, "\"${responseType}\" code is invalid or not implemented")
+                            }
+
+                            if (clientId != CLIENT_ID) {
+                                return@get call.respond(HttpStatusCode.NotFound, "client not found")
+                            }
+
+                            // TODO check if the scopes are valid
+                            if (scope?.split(" ").isNullOrEmpty()) {
+                                return@get call.respond(HttpStatusCode.BadRequest, "invalid or missing \"scope\"")
+                            }
+
+                            if (redirectUri != REDIRECT_URL) {
+                                return@get call.respond(HttpStatusCode.NotAcceptable, "\"redirect_uri\" is not set or do not conform with the pre-defined URIs")
+                            }
+                        }
+
+                    } catch (e: InvalidParameterException) {
+                        return@get call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
+                    }
+
+                    call.respondRedirect(
+                        URLBuilder(APP_AUTHORIZE_URL).apply {
+                            parameters["nonce"] = SectionNoncePool.put(params)
+                        }.buildString(),
+                        false
+                    )
+                }
+            }
+
             route("providers") {
                 PROVIDERS.forEach { provider ->
                     route(provider.id) {
                         get("authorize") {
+                            val nonceParam = call.request.queryParameters["nonce"] ?: return@get call.respond(HttpStatusCode.BadRequest, "missing \"nonce\" parameter")
+                            SectionNoncePool.retrieve(nonceParam) ?: return@get call.respond(HttpStatusCode.NotFound, "session not found")
+
                             val dealer = OAuth2Dealer(provider)
                             call.respondRedirect(dealer.buildAuthorizeURL().toString())
                         }

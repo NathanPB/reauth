@@ -32,6 +32,8 @@ val BASE_URL = System.getenv("BASE_URL") ?: error("BASE_URL is not set")
 val REDIRECT_URL = System.getenv("REDIRECT_URL") ?: error("REDIRECT_URL is not set")
 val ISSUER = System.getenv("ISSUER") ?: "reauth"
 
+val APP_AUTHORIZE_URL = System.getenv("APP_AUTHORIZE_URL") ?: error("APP_AUTHORIZE_URL is not set")
+
 val CLIENT_ID = System.getenv("CLIENT_ID") ?: error("CLIENT_ID is not set")
 val CLIENT_SECRET = System.getenv("CLIENT_SECRET") ?: error("CLIENT_SECRET is not set")
 
