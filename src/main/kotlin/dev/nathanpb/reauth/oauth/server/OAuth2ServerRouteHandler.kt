@@ -22,19 +22,22 @@ package dev.nathanpb.reauth.oauth.server
 import dev.nathanpb.reauth.APP_AUTHORIZE_URL
 import dev.nathanpb.reauth.CLIENT_ID
 import dev.nathanpb.reauth.REDIRECT_URL
+import dev.nathanpb.reauth.controller.AuthCodeController
 import dev.nathanpb.reauth.controller.SessionNoncePool
 import dev.nathanpb.reauth.data.AuthorizeEndpointParams
+import dev.nathanpb.reauth.data.TokenEndpointParams
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import java.security.InvalidParameterException
 
 object OAuth2ServerRouteHandler {
+
     suspend fun handleAuthorize(call: ApplicationCall) {
         val params = try {
             AuthorizeEndpointParams.receive(call.request.queryParameters).apply {
                 if (responseType != "code") {
-                    return call.respond(HttpStatusCode.NotImplemented, "\"${responseType}\" code is invalid or not implemented")
+                    return call.respond(HttpStatusCode.NotImplemented, "\"${responseType}\" is invalid or not implemented")
                 }
 
                 if (clientId != CLIENT_ID) {
@@ -61,5 +64,26 @@ object OAuth2ServerRouteHandler {
             }.buildString(),
             false
         )
+    }
+
+    suspend fun handleToken(call: ApplicationCall) {
+        val params = try {
+            TokenEndpointParams.receive(call.request.queryParameters).apply {
+                if (grantType != "authorization_code") {
+                    return call.respond(HttpStatusCode.NotImplemented, "\"${grantType}\" is invalid or not implemented")
+                }
+
+                if (clientSecret == null) {
+                    return call.respond(HttpStatusCode.Unauthorized, "\"client_secret\" is not present")
+                }
+            }
+        } catch (e: InvalidParameterException) {
+            return call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
+        }
+
+        val token = AuthCodeController.exchangeCode(params.code, params.clientSecret!!) // This is asserted to not be null in the statements above
+        token ?: return call.respond(HttpStatusCode.MultiStatus, listOf(401, 403, 404))
+
+        call.respond(token)
     }
 }

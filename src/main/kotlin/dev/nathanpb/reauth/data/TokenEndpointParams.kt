@@ -22,23 +22,21 @@ package dev.nathanpb.reauth.data
 import io.ktor.http.*
 import java.security.InvalidParameterException
 
-// https://tools.ietf.org/html/rfc6749#section-4.1.1
-data class AuthorizeEndpointParams(
+// https://tools.ietf.org/html/rfc6749#section-4.1.3
+data class TokenEndpointParams (
+    val grantType: String,
+    val code: String,
+    val redirectUri: String,
     val clientId: String,
-    val responseType: String,
-    val redirectUri: String?,
-    val scope: String?,
-    val state: String?
+    val clientSecret: String? // why is it not in the specification? Guess I'm missing something
 ) {
     companion object {
-        fun receive(parameters: Parameters): AuthorizeEndpointParams {
-            return AuthorizeEndpointParams(
-                parameters["client_id"] ?: throw InvalidParameterException("missing client_id"),
-                parameters["response_type"] ?: throw InvalidParameterException("missing response_type"),
-                parameters["redirect_uri"],
-                parameters["scope"],
-                parameters["state"],
-            )
-        }
+        fun receive(params: Parameters) = TokenEndpointParams(
+            params["grant_type"] ?: throw InvalidParameterException("missing grant_type"),
+            params["code"] ?: throw InvalidParameterException("missing code"),
+            params["redirect_uri"] ?: throw InvalidParameterException("missing redirect_uri"),
+            params["client_id"] ?: throw InvalidParameterException("missing client_id"),
+            params["client_secret"]
+        )
     }
 }

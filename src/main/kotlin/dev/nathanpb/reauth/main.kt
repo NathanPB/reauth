@@ -55,6 +55,10 @@ fun main() {
                 get("authorize") {
                     OAuth2ServerRouteHandler.handleAuthorize(call)
                 }
+
+                get("token") {
+                    OAuth2ServerRouteHandler.handleToken(call)
+                }
             }
 
             route("providers") {
