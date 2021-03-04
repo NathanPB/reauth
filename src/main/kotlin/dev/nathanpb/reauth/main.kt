@@ -19,6 +19,7 @@
 
 package dev.nathanpb.reauth
 
+import com.auth0.jwt.JWT
 import dev.nathanpb.reauth.controller.IdentityController
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
@@ -60,12 +61,37 @@ fun main() {
                 }
             }
 
-            get("identity/{uid}") {
-                val token = call.request.header("Authorization") ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                val uid = call.parameters["uid"]!!
+            get("identity") {
+                val authString = call.request.header("Authorization")?.split(" ") ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-                return@get if (verifyJwt(token, uid, CLIENT_ID)) {
-                    call.respond(IdentityController.findIdentities(uid))
+                if (authString.size != 2) {
+                    return@get call.respond(HttpStatusCode.BadRequest, "malformed Authorization")
+                }
+
+                if (authString[0] != "Bearer") {
+                    return@get call.respond(HttpStatusCode.UnprocessableEntity, "malformed token type")
+                }
+
+                val token = authString[1]
+                return@get if (verifyJwt(token, null, CLIENT_ID)) {
+                    val uid = JWT.require(hmac256)
+                        .withIssuer(ISSUER)
+                        .build()
+                        .verify(token)
+                        .getClaim("uid")
+                        .asString()
+
+                    call.respond(
+                        """
+                            [
+                                ${
+                                    IdentityController.findIdentities(uid)
+                                        .map { it.data?.toJson() }
+                                        .joinToString(", ")
+                                }
+                            ]
+                        """.trimIndent()
+                    )
                 } else {
                     call.respond(HttpStatusCode.Forbidden)
                 }
@@ -74,12 +100,14 @@ fun main() {
             route("providers") {
                 PROVIDERS.forEach { provider ->
                     OAuth2ClientRouteHandler(provider).apply {
-                        get("authorize") {
-                            handleAuthorize(call)
-                        }
+                        route(provider.id) {
+                            get("authorize") {
+                                handleAuthorize(call)
+                            }
 
-                        get("callback") {
-                            handleCallback(call)
+                            get("callback") {
+                                handleCallback(call)
+                            }
                         }
                     }
                 }
