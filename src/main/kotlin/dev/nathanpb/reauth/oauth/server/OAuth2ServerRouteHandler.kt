@@ -19,7 +19,7 @@
 
 package dev.nathanpb.reauth.oauth.server
 
-import dev.nathanpb.reauth.APP_AUTHORIZE_URL
+import dev.nathanpb.reauth.config.APP_AUTHORIZE_URL
 import dev.nathanpb.reauth.controller.AuthCodeController
 import dev.nathanpb.reauth.controller.SessionNoncePool
 import dev.nathanpb.reauth.data.AuthorizeEndpointParams

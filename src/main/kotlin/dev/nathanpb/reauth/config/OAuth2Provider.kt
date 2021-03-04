@@ -17,9 +17,8 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.oauth.client
+package dev.nathanpb.reauth.config
 
-import dev.nathanpb.reauth.BASE_URL
 import io.ktor.http.*
 
 data class OAuth2Provider (

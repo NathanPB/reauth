@@ -21,8 +21,8 @@ package dev.nathanpb.reauth.data
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import dev.nathanpb.reauth.ISSUER
-import dev.nathanpb.reauth.SECRET
+import dev.nathanpb.reauth.config.ISSUER
+import dev.nathanpb.reauth.config.SECRET
 
 private val hmac256 = Algorithm.HMAC256(SECRET)
 

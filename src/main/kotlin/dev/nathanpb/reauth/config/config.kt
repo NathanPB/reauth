@@ -17,9 +17,8 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth
+package dev.nathanpb.reauth.config
 
-import dev.nathanpb.reauth.oauth.client.OAuth2Provider
 import kotlinx.serialization.json.*
 import java.nio.file.Path
 import java.nio.file.Paths

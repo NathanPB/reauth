@@ -23,9 +23,9 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.coroutines.awaitObjectResult
 import com.github.kittinunf.fuel.coroutines.awaitStringResponse
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
-import dev.nathanpb.reauth.BASE_URL
+import dev.nathanpb.reauth.config.BASE_URL
+import dev.nathanpb.reauth.config.OAuth2Provider
 import dev.nathanpb.reauth.data.AuthorizeEndpointResponse
-import dev.nathanpb.reauth.data.Client
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import io.ktor.http.*
 import org.bson.Document

@@ -23,7 +23,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import dev.nathanpb.reauth.data.AuthorizeEndpointParams
 import dev.nathanpb.reauth.data.Client
 import dev.nathanpb.reauth.oauth.client.OAuth2Dealer
-import dev.nathanpb.reauth.oauth.client.OAuth2Provider
+import dev.nathanpb.reauth.config.OAuth2Provider
 import dev.nathanpb.reauth.randomHex
 import java.util.concurrent.TimeUnit
 

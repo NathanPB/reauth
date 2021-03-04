@@ -19,7 +19,7 @@
 
 package dev.nathanpb.reauth.oauth
 
-import dev.nathanpb.reauth.oauth.client.OAuth2Provider
+import dev.nathanpb.reauth.config.OAuth2Provider
 
 class OAuth2AuthorizeException (val provider: OAuth2Provider, val error: AuthorizationError)
     : Exception("${provider.id} responded with ${error.errorString}")

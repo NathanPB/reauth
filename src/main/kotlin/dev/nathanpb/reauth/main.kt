@@ -19,6 +19,8 @@
 
 package dev.nathanpb.reauth
 
+import dev.nathanpb.reauth.config.PORT
+import dev.nathanpb.reauth.config.PROVIDERS
 import dev.nathanpb.reauth.controller.IdentityController
 import dev.nathanpb.reauth.data.ReauthJWT
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler

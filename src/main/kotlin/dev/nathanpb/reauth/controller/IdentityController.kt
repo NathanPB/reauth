@@ -23,7 +23,7 @@ import com.mongodb.client.model.Filters
 import dev.nathanpb.reauth.data.Identity
 import dev.nathanpb.reauth.md5Hex
 import dev.nathanpb.reauth.oauth.OAuth2Token
-import dev.nathanpb.reauth.oauth.client.OAuth2Provider
+import dev.nathanpb.reauth.config.OAuth2Provider
 import org.bson.Document
 import org.litote.kmongo.*
 

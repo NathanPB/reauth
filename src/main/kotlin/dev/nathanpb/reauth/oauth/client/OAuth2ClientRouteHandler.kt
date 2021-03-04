@@ -18,6 +18,7 @@
  */
 
 package dev.nathanpb.reauth.oauth.client
+import dev.nathanpb.reauth.config.OAuth2Provider
 import dev.nathanpb.reauth.controller.AuthCodeController
 import dev.nathanpb.reauth.controller.DealerSessionController
 import dev.nathanpb.reauth.controller.IdentityController

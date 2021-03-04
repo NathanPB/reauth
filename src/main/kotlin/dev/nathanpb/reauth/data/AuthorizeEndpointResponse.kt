@@ -21,7 +21,7 @@ package dev.nathanpb.reauth.data
 
 import dev.nathanpb.reauth.oauth.AuthorizationError
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
-import dev.nathanpb.reauth.oauth.client.OAuth2Provider
+import dev.nathanpb.reauth.config.OAuth2Provider
 import io.ktor.http.*
 import kotlin.jvm.Throws
 
