@@ -32,8 +32,17 @@ data class OAuth2Provider (
     val userDataURL: String,
     val tokenURL: String,
     val linkageField: String = "email",
-    val idField: String = "id"
+    val idField: String = "id",
+    val dataAccessRules: HashMap<String, Set<String>>
 ) {
+
+    init {
+        val invalidScopes = dataAccessRules.values.flatten().filterNot { it in SCOPES }.toSet()
+        if (invalidScopes.isNotEmpty()) {
+            error("Invalid scopes found. Did you forget to add it to the $SCOPES_FILE file? Scopes: ${invalidScopes.joinToString(", ")}")
+        }
+    }
+
     fun buildAuthorizeUrl(sessionId: String): String {
         return URLBuilder(authorizeURL).apply {
             parameters["response_type"] = "code"

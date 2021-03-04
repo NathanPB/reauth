@@ -20,6 +20,7 @@
 package dev.nathanpb.reauth.data
 
 import com.mongodb.client.model.Updates
+import dev.nathanpb.reauth.config.PROVIDERS
 import dev.nathanpb.reauth.mongoDb
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import kotlinx.coroutines.reactive.awaitFirst
@@ -27,13 +28,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.bson.BSONObject
 import org.bson.BsonDocument
 import org.bson.Document
 import org.litote.kmongo.Id
 import org.litote.kmongo.eq
 import org.litote.kmongo.newId
-import org.litote.kmongo.set
 
 @Serializable
 data class Identity(
@@ -62,4 +61,15 @@ data class Identity(
                 collection.updateOneById(id, Updates.set("data", value))
             }
         }
+
+    fun getDataForScopes(scopes: Set<String>) : BsonDocument? {
+        val provider = PROVIDERS.firstOrNull { it.id == provider } ?: return null
+        return provider.dataAccessRules.entries.filter {
+            scopes.any { scope -> scope in it.value }
+        }.map {
+            it.key
+        }.fold(Document().toBsonDocument()) { doc, key ->
+            doc.append(key, data?.get(key))
+        }
+    }
 }

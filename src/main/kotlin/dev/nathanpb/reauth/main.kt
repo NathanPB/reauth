@@ -79,17 +79,23 @@ fun main() {
                     ReauthJWT.fromToken(token)
                 }.getOrNull()
 
-                return@get if (jwt != null && "identity" in jwt.scopes) {
+                return@get if (jwt != null) {
+                    val identities = IdentityController.findIdentities(jwt.uid)
+                        .associateWith { it.getDataForScopes(jwt.scopes) }
+                        .filter { (_, value) -> value != null && value.isNotEmpty()}
+
+                    // cursed kotlin
+                    // todo what about being a decent human being?
                     call.respond(
                         """
                             [
                                 ${
-                            IdentityController.findIdentities(jwt.uid).joinToString(", ") {
+                            identities.entries.joinToString(", ") { (it, data) ->
                                 """
                                 {
                                     "uid": "${it.id}",
                                     "provider": "${it.provider}",
-                                    "data": ${it.data?.toJson()}
+                                    "data": $data
                                 }
                                 """.trimIndent()
                             }

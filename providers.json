@@ -6,7 +6,11 @@
     "scopes": ["identify", "email"],
     "authorizeURL": "https://example.com/api/oauth2/authorize",
     "tokenURL": "https://example.com/api/oauth2/token",
+    "userDataURL": "https://example.com/api/me",
     "linkageField": "email",
-    "idField": "id"
+    "idField": "id",
+    "dataAccessRules": {
+      "username": ["identity"]
+    }
   }
 ]
