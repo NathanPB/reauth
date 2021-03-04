@@ -47,7 +47,7 @@ fun verifyJwt(jwt: String, uid: String?, clientId: String, requiredScopes: List<
     }.isSuccess
 }
 
-fun md5Hex(input: String) = String(md5.digest(input.toByteArray()))
+fun md5Hex(input: String) = HexUtils.toHex(md5.digest(input.toByteArray()))
 
 fun randomHex(byteSize: Int) : String {
     val array = ByteArray(byteSize)
