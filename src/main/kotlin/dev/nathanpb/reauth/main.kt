@@ -85,9 +85,15 @@ fun main() {
                         """
                             [
                                 ${
-                                    IdentityController.findIdentities(uid)
-                                        .map { it.data?.toJson() }
-                                        .joinToString(", ")
+                                    IdentityController.findIdentities(uid).joinToString(", ") {
+                                        """
+                                            {
+                                                "uid": "${it.id}",
+                                                "provider": "${it.provider}",
+                                                "data": ${it.data?.toJson()}
+                                            }
+                                        """.trimIndent()
+                                    }
                                 }
                             ]
                         """.trimIndent()
