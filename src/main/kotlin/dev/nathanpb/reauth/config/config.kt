@@ -19,6 +19,7 @@
 
 package dev.nathanpb.reauth.config
 
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -27,6 +28,7 @@ import kotlin.io.path.readText
 
 val PORT = System.getenv("PORT")?.toIntOrNull() ?: 6660
 val PROVIDERS_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./providers.json")
+val SCOPES_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./scopes.json")
 val BASE_URL = System.getenv("BASE_URL") ?: error("BASE_URL is not set")
 val ISSUER = System.getenv("ISSUER") ?: "reauth"
 val SECRET = System.getenv("SECRET") ?: error("SECRET is not set")
@@ -34,8 +36,19 @@ val SECRET = System.getenv("SECRET") ?: error("SECRET is not set")
 val APP_AUTHORIZE_URL = System.getenv("APP_AUTHORIZE_URL") ?: error("APP_AUTHORIZE_URL is not set")
 
 @OptIn(ExperimentalPathApi::class)
+val SCOPES = run {
+    val list = Json.decodeFromString(SCOPES_FILE.readText()) as List<String>
+    val distinct = list.toSet()
+    if (distinct.size != list.size) {
+        error("scopes list contains duplicated scope")
+    }
+
+    distinct
+}
+
+@OptIn(ExperimentalPathApi::class)
 val PROVIDERS = run {
-    val text = PROVIDERS_FILE.readText(Charsets.UTF_8)
+    val text = PROVIDERS_FILE.readText()
     Json.parseToJsonElement(text)
         .jsonArray
         .filterIsInstance<JsonObject>()
@@ -57,5 +70,4 @@ val PROVIDERS = run {
                 it["idField"]?.jsonPrimitive?.content ?: "id"
             )
         }
-
 }

@@ -20,6 +20,7 @@
 package dev.nathanpb.reauth.oauth.server
 
 import dev.nathanpb.reauth.config.APP_AUTHORIZE_URL
+import dev.nathanpb.reauth.config.SCOPES
 import dev.nathanpb.reauth.controller.AuthCodeController
 import dev.nathanpb.reauth.controller.SessionNoncePool
 import dev.nathanpb.reauth.data.AuthorizeEndpointParams
@@ -44,8 +45,8 @@ object OAuth2ServerRouteHandler {
                     return call.respond(HttpStatusCode.NotFound, "client not found")
                 }
 
-                // TODO check if the scopes are valid
-                if (scope?.split(" ").isNullOrEmpty()) {
+                val scopes = scope?.split(" ").orEmpty().map(String::toLowerCase).toSet()
+                if (scopes.isEmpty() || scopes.any { it !in SCOPES }) {
                     return call.respond(HttpStatusCode.BadRequest, "invalid or missing \"scope\"")
                 }
 

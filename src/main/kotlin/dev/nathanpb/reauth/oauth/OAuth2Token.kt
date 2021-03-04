@@ -42,7 +42,7 @@ data class OAuth2Token(
             ReauthJWT(clientId, uid, scopes).jwtString,
             "Bearer",
             TimeUnit.DAYS.toSeconds(12),
-            scope = scopes.joinToString(" ")
+            scope = scopes.map(String::toLowerCase).toSet().joinToString(" ")
         )
     }
 
