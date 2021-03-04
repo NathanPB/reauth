@@ -43,6 +43,29 @@ val mongoClient = KMongo.createClient(System.getenv("MONGO_CONN_STRING") ?: erro
 val mongoDb = mongoClient.getDatabase(System.getenv("MONGO_DB_NAME") ?: "reauth")
 
 fun main() {
+    println("""
+                           ▄              ▄
+                          ▌▒█           ▄▀▒▌
+                          ▌▒▒█        ▄▀▒▒▒▐
+                         ▐▄▀▒▒▀▀▀▀▄▄▄▀▒▒▒▒▒▐
+                       ▄▄▀▒░▒▒▒▒▒▒▒▒▒█▒▒▄█▒▐
+                     ▄▀▒▒▒░░░▒▒▒░░░▒▒▒▀██▀▒▌
+                    ▐▒▒▒▄▄▒▒▒▒░░░▒▒▒▒▒▒▒▀▄▒▒▌
+                    ▌░░▌█▀▒▒▒▒▒▄▀█▄▒▒▒▒▒▒▒█▒▐
+                   ▐░░░▒▒▒▒▒▒▒▒▌██▀▒▒░░░▒▒▒▀▄▌
+                   ▌░▒▄██▄▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒▌
+                  ▌▒▀▐▄█▄█▌▄░▀▒▒░░░░░░░░░░▒▒▒▐
+                  ▐▒▒▐▀▐▀▒░▄▄▒▄▒▒▒▒▒▒░▒░▒░▒▒▒▒▌
+                  ▐▒▒▒▀▀▄▄▒▒▒▄▒▒▒▒▒▒▒▒░▒░▒░▒▒▐
+                   ▌▒▒▒▒▒▒▀▀▀▒▒▒▒▒▒░▒░▒░▒░▒▒▒▌
+                   ▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒░▒░▒░▒▒▄▒▒▐
+                    ▀▄▒▒▒▒▒▒▒▒▒▒▒░▒░▒░▒▄▒▒▒▒▌
+                      ▀▄▒▒▒▒▒▒▒▒▒▒▄▄▄▀▒▒▒▒▄▀
+                        ▀▄▄▄▄▄▄▀▀▀▒▒▒▒▒▄▄▀
+                           ▒▒▒▒▒▒▒▒▒▒▀▀
+                        WOW SUCH INSOMNIA
+    """.trimIndent())
+
     IdGenerator.defaultGenerator = UUIDStringIdGenerator
     embeddedServer(Netty, PORT) {
 
