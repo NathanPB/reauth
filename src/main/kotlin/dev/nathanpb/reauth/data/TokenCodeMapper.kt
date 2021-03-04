@@ -21,17 +21,10 @@ package dev.nathanpb.reauth.data
 
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import dev.nathanpb.reauth.randomHex
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import org.litote.kmongo.Id
-import org.litote.kmongo.newId
 
-@Serializable
 data class TokenCodeMapper (
-    @Contextual @SerialName("_id") val id: Id<TokenCodeMapper> = newId(),
     val code: String = randomHex(4),
     val token: OAuth2Token,
 ) {
-    constructor(token: OAuth2Token): this(newId(), token = token)
+    constructor(_token: OAuth2Token): this(token = _token) // _ to prevent recursive call. I know, this is stupid
 }
