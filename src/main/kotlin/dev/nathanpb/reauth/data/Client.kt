@@ -17,19 +17,25 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth
+package dev.nathanpb.reauth.data
 
-import com.mongodb.internal.HexUtils
-import java.security.MessageDigest
-import java.security.SecureRandom
+import dev.nathanpb.reauth.mongoDb
+import dev.nathanpb.reauth.randomHex
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
 
-
-private val md5 = MessageDigest.getInstance("MD5")
-
-fun md5Hex(input: String) = HexUtils.toHex(md5.digest(input.toByteArray()))
-
-fun randomHex(byteSize: Int) : String {
-    val array = ByteArray(byteSize)
-    SecureRandom().nextBytes(array)
-    return HexUtils.toHex(array)
+@Serializable
+data class Client (
+    @Contextual @SerialName("_id") val clientId: Id<Client> = newId(),
+    val clientSecret: String = randomHex(128),
+    val displayName: String,
+    val redirectUris: List<String> = emptyList(),
+    val skipConsent: Boolean = false, // TODO make skipConsent work
+) {
+    companion object {
+        val collection = mongoDb.getCollection<Client>()
+    }
 }

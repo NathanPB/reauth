@@ -18,12 +18,11 @@
  */
 
 package dev.nathanpb.reauth.oauth.client
-
-import dev.nathanpb.reauth.CLIENT_ID
-import dev.nathanpb.reauth.REDIRECT_URL
 import dev.nathanpb.reauth.controller.AuthCodeController
+import dev.nathanpb.reauth.controller.DealerSessionController
 import dev.nathanpb.reauth.controller.IdentityController
 import dev.nathanpb.reauth.controller.SessionNoncePool
+import dev.nathanpb.reauth.data.AuthorizeEndpointResponse
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import io.ktor.application.*
@@ -35,29 +34,35 @@ class OAuth2ClientRouteHandler(private val provider: OAuth2Provider) {
 
     suspend fun handleAuthorize(call: ApplicationCall) {
         val nonceParam = call.request.queryParameters["nonce"] ?: return call.respond(HttpStatusCode.BadRequest, "missing \"nonce\" parameter")
-        SessionNoncePool.retrieve(nonceParam) ?: return call.respond(HttpStatusCode.NotFound, "session not found")
+        val nonce = SessionNoncePool.retrieve(nonceParam) ?: return call.respond(HttpStatusCode.NotFound, "session not found")
 
-        val dealer = OAuth2Dealer(provider)
-        call.respondRedirect(dealer.buildAuthorizeURL().toString())
+        val session = DealerSessionController.new(provider, nonce.client, nonce)
+        call.respondRedirect(provider.buildAuthorizeUrl(session.id))
     }
 
     suspend fun handleCallback(call: ApplicationCall) {
-        val code = call.request.queryParameters["code"]
-        val error = call.request.queryParameters["error"]
-        val dealer = OAuth2Dealer(provider)
+        val params = AuthorizeEndpointResponse.receive(call.request.queryParameters)
 
         try {
-            dealer.receiveRedirect(code, error)
+            if (params.state == null) {
+                return call.respond(HttpStatusCode.BadRequest, "missing state")
+            }
+
+            val session = DealerSessionController.find(params.state) ?: return call.respond(HttpStatusCode.UnprocessableEntity, "dealer not found. Maybe the time is out?")
+            DealerSessionController.finalize(session.id)
+
+            session.dealer.receiveRedirect(params)
             val uid = IdentityController.saveIdentity(
-                dealer.getAccessToken(),
-                dealer.provider,
-                dealer.getUserData()
+                session.dealer.getAccessToken(),
+                session.dealer.provider,
+                session.dealer.getUserData()
             ).uid
 
-            val token = OAuth2Token.newBearerToken(uid, CLIENT_ID, emptyList())
+
+            val token = OAuth2Token.newBearerToken(uid, session.client.clientId.toString(), session.initialParams.scope.orEmpty().split(" ").toSet())
 
             // TODO implement the "state" parameter. https://tools.ietf.org/html/rfc6749#section-4.1.2
-            val redirectURL = URLBuilder(REDIRECT_URL).apply {
+            val redirectURL = URLBuilder(session.initialParams.redirectUri!!).apply {
                 parameters["code"] = AuthCodeController.putTokenInThePool(token)
             }
 

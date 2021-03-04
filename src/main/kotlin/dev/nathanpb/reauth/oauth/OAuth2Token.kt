@@ -19,9 +19,7 @@
 
 package dev.nathanpb.reauth.oauth
 
-import com.auth0.jwt.JWT
-import dev.nathanpb.reauth.ISSUER
-import dev.nathanpb.reauth.hmac256
+import dev.nathanpb.reauth.data.ReauthJWT
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.Instant
@@ -40,13 +38,8 @@ data class OAuth2Token(
 ) {
 
     companion object {
-        fun newBearerToken(uid: String, clientId: String, scopes: List<String>) = OAuth2Token(
-            JWT.create()
-                .withIssuer(ISSUER)
-                .withClaim("uid", uid)
-                .withClaim("client_id", clientId)
-                .withArrayClaim("scope", scopes.toTypedArray())
-                .sign(hmac256),
+        fun newBearerToken(uid: String, clientId: String, scopes: Set<String>) = OAuth2Token(
+            ReauthJWT(clientId, uid, scopes).jwtString,
             "Bearer",
             TimeUnit.DAYS.toSeconds(12),
             scope = scopes.joinToString(" ")

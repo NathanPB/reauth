@@ -19,6 +19,9 @@
 
 package dev.nathanpb.reauth.oauth.client
 
+import dev.nathanpb.reauth.BASE_URL
+import io.ktor.http.*
+
 data class OAuth2Provider (
     val id: String,
     val clientId: String,
@@ -29,4 +32,14 @@ data class OAuth2Provider (
     val tokenURL: String,
     val linkageField: String,
     val idField: String
-)
+) {
+    fun buildAuthorizeUrl(sessionId: String): String {
+        return URLBuilder(authorizeURL).apply {
+            parameters["response_type"] = "code"
+            parameters["client_id"] = clientId
+            parameters["redirect_uri"] = URLBuilder(BASE_URL).path("providers/$id/callback").buildString()
+            parameters["scope"] = scopes.joinToString(" ")
+            parameters["state"] = sessionId
+        }.buildString()
+    }
+}

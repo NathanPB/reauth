@@ -24,8 +24,8 @@ import com.github.kittinunf.fuel.coroutines.awaitObjectResult
 import com.github.kittinunf.fuel.coroutines.awaitStringResponse
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import dev.nathanpb.reauth.BASE_URL
-import dev.nathanpb.reauth.oauth.AuthorizationError
-import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
+import dev.nathanpb.reauth.data.AuthorizeEndpointResponse
+import dev.nathanpb.reauth.data.Client
 import dev.nathanpb.reauth.oauth.OAuth2Token
 import io.ktor.http.*
 import org.bson.Document
@@ -36,27 +36,9 @@ class OAuth2Dealer(val provider: OAuth2Provider) {
     private var token: OAuth2Token? = null
     private var userData: Map<String, Any>? = null
 
-    fun buildAuthorizeURL(): Url {
-        return URLBuilder(provider.authorizeURL).apply {
-            parameters["response_type"] = "code"
-            parameters["client_id"] = provider.clientId
-            parameters["redirect_uri"] = URLBuilder(BASE_URL).path("providers/${provider.id}/callback").buildString()
-            parameters["scope"] = provider.scopes.joinToString(" ")
-        }.build()
-    }
-
-    fun receiveRedirect(code: String?, error: String?) {
-        // https://tools.ietf.org/html/rfc6749#section-4.1.2.1
-        if (error?.isNotEmpty() == true) {
-            val authError = AuthorizationError.parse(error) ?: error("$error is not a valid oAuth2 authorization error")
-            throw OAuth2AuthorizeException(provider, authError)
-        }
-
-        if (code == null || code.isBlank()) {
-            error("${provider.id} did not sent nighter code or error")
-        }
-
-        this.code = code
+    fun receiveRedirect(params: AuthorizeEndpointResponse) {
+        params.verify(provider)
+        this.code = params.code
     }
 
     private suspend fun exchangeToken() {

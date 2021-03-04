@@ -17,19 +17,20 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth
+package dev.nathanpb.reauth.controller
 
-import com.mongodb.internal.HexUtils
-import java.security.MessageDigest
-import java.security.SecureRandom
+import dev.nathanpb.reauth.data.Client
 
+object ClientController {
 
-private val md5 = MessageDigest.getInstance("MD5")
+    suspend fun registerNewClient(displayName: String): Client {
+        return Client(displayName = displayName).also {
+            Client.collection.save(it)
+        }
+    }
 
-fun md5Hex(input: String) = HexUtils.toHex(md5.digest(input.toByteArray()))
+    suspend fun findClientById(clientId: String): Client? {
+        return Client.collection.findOneById(clientId)
+    }
 
-fun randomHex(byteSize: Int) : String {
-    val array = ByteArray(byteSize)
-    SecureRandom().nextBytes(array)
-    return HexUtils.toHex(array)
 }

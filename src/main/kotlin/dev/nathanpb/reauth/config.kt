@@ -29,13 +29,10 @@ import kotlin.io.path.readText
 val PORT = System.getenv("PORT")?.toIntOrNull() ?: 6660
 val PROVIDERS_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./providers.json")
 val BASE_URL = System.getenv("BASE_URL") ?: error("BASE_URL is not set")
-val REDIRECT_URL = System.getenv("REDIRECT_URL") ?: error("REDIRECT_URL is not set")
 val ISSUER = System.getenv("ISSUER") ?: "reauth"
+val SECRET = System.getenv("SECRET") ?: error("SECRET is not set")
 
 val APP_AUTHORIZE_URL = System.getenv("APP_AUTHORIZE_URL") ?: error("APP_AUTHORIZE_URL is not set")
-
-val CLIENT_ID = System.getenv("CLIENT_ID") ?: error("CLIENT_ID is not set")
-val CLIENT_SECRET = System.getenv("CLIENT_SECRET") ?: error("CLIENT_SECRET is not set")
 
 @OptIn(ExperimentalPathApi::class)
 val PROVIDERS = run {

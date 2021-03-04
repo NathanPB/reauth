@@ -42,8 +42,8 @@ app.get('/callback', async (req, res) => {
     "code": req.query.code,
     "grant_type": "authorization_code",
     "redirect_uri": "http://localhost:3000",
-    "client_id": "123",
-    "client_secret": "superman"
+    "client_id": "007a0bae-926f-4c9c-90d6-bbf533281f98",
+    "client_secret": "26a238915b9d29ea47a1979fd540628958247de5108cc0844f707563736e60753f08470a8503b4d6ba12937cf1b56959293879043faa89ff5f1118b8163bb65112f3b7baf5b20501a711ae939f13c2549f0e9705b3482afa9536f47706f0ea065dbb521f81dbb309a7f85f555aea2d024920bdf33828961db2e8208704eee8fe"
   }
 
   const token = await reauth.post('/oauth/token', body, {

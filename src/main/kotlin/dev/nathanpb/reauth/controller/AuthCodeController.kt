@@ -20,11 +20,9 @@
 package dev.nathanpb.reauth.controller
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import dev.nathanpb.reauth.CLIENT_ID
-import dev.nathanpb.reauth.CLIENT_SECRET
+import dev.nathanpb.reauth.data.ReauthJWT
 import dev.nathanpb.reauth.data.TokenCodeMapper
 import dev.nathanpb.reauth.oauth.OAuth2Token
-import dev.nathanpb.reauth.verifyJwt
 import java.util.concurrent.TimeUnit
 
 // TODO expire a code if requested two times
@@ -41,13 +39,14 @@ object AuthCodeController {
         }.code
     }
 
-    fun exchangeCode(code: String, clientSecret: String): OAuth2Token? {
-        if (clientSecret == CLIENT_SECRET) {
-            val token = codes.getIfPresent(code) ?: return null
-            if (verifyJwt(token.token.accessToken, null, CLIENT_ID)) {
-                codes.invalidate(code)
-                return token.token
-            }
+    suspend fun exchangeCode(code: String, clientSecret: String): OAuth2Token? {
+        val token = codes.getIfPresent(code) ?: return null
+        val jtw = ReauthJWT.fromToken(token.token.accessToken)
+        val client = ClientController.findClientById(jtw.clientId) ?: return null
+
+        if (client.clientSecret == clientSecret) {
+            codes.invalidate(code)
+            return token.token
         }
 
         return null

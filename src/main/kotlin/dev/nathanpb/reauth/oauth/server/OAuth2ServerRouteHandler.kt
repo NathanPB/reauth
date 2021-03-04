@@ -20,8 +20,6 @@
 package dev.nathanpb.reauth.oauth.server
 
 import dev.nathanpb.reauth.APP_AUTHORIZE_URL
-import dev.nathanpb.reauth.CLIENT_ID
-import dev.nathanpb.reauth.REDIRECT_URL
 import dev.nathanpb.reauth.controller.AuthCodeController
 import dev.nathanpb.reauth.controller.SessionNoncePool
 import dev.nathanpb.reauth.data.AuthorizeEndpointParams
@@ -42,7 +40,7 @@ object OAuth2ServerRouteHandler {
                     return call.respond(HttpStatusCode.NotImplemented, "\"${responseType}\" is invalid or not implemented")
                 }
 
-                if (clientId != CLIENT_ID) {
+                if (!clientExists()) {
                     return call.respond(HttpStatusCode.NotFound, "client not found")
                 }
 
@@ -51,7 +49,7 @@ object OAuth2ServerRouteHandler {
                     return call.respond(HttpStatusCode.BadRequest, "invalid or missing \"scope\"")
                 }
 
-                if (redirectUri != REDIRECT_URL) {
+                if (redirectUri !in client.redirectUris) {
                     return call.respond(HttpStatusCode.NotAcceptable, "\"redirect_uri\" is not set or do not conform with the pre-defined URIs")
                 }
             }

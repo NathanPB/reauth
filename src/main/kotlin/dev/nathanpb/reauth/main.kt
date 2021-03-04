@@ -19,8 +19,8 @@
 
 package dev.nathanpb.reauth
 
-import com.auth0.jwt.JWT
 import dev.nathanpb.reauth.controller.IdentityController
+import dev.nathanpb.reauth.data.ReauthJWT
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
 import io.ktor.application.*
@@ -73,34 +73,29 @@ fun main() {
                 }
 
                 val token = authString[1]
-                return@get if (verifyJwt(token, null, CLIENT_ID)) {
-                    val uid = JWT.require(hmac256)
-                        .withIssuer(ISSUER)
-                        .build()
-                        .verify(token)
-                        .getClaim("uid")
-                        .asString()
+                val jwt = kotlin.runCatching {
+                    ReauthJWT.fromToken(token)
+                }.getOrNull()
 
+                return@get if (jwt != null && "identity" in jwt.scopes) {
                     call.respond(
                         """
                             [
                                 ${
-                                    IdentityController.findIdentities(uid).joinToString(", ") {
-                                        """
-                                            {
-                                                "uid": "${it.id}",
-                                                "provider": "${it.provider}",
-                                                "data": ${it.data?.toJson()}
-                                            }
-                                        """.trimIndent()
-                                    }
+                            IdentityController.findIdentities(jwt.uid).joinToString(", ") {
+                                """
+                                {
+                                    "uid": "${it.id}",
+                                    "provider": "${it.provider}",
+                                    "data": ${it.data?.toJson()}
+                                }
+                                """.trimIndent()
+                            }
                                 }
                             ]
                         """.trimIndent()
                     )
-                } else {
-                    call.respond(HttpStatusCode.Forbidden)
-                }
+                } else call.respond(HttpStatusCode.Forbidden)
             }
 
             route("providers") {
