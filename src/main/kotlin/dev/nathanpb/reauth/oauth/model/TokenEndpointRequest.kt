@@ -17,20 +17,17 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.controller
+package dev.nathanpb.reauth.oauth.model
 
-import dev.nathanpb.reauth.data.Client
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-object ClientController {
-
-    suspend fun registerNewClient(displayName: String): Client {
-        return Client(displayName = displayName).also {
-            Client.collection.save(it)
-        }
-    }
-
-    suspend fun findClientById(clientId: String): Client? {
-        return Client.collection.findOneById(clientId)
-    }
-
-}
+// https://tools.ietf.org/html/rfc6749#section-4.1.3
+@Serializable
+data class TokenEndpointRequest (
+    @SerialName("grant_type")    val grantType: String,
+    @SerialName("code")          val code: String,
+    @SerialName("redirect_uri")  val redirectUri: String,
+    @SerialName("client_id")     val clientId: String,
+    @SerialName("client_secret") val clientSecret: String? = null // why is it not in the specification? Guess I'm missing something
+)

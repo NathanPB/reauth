@@ -21,10 +21,10 @@ package dev.nathanpb.reauth
 
 import dev.nathanpb.reauth.config.PORT
 import dev.nathanpb.reauth.config.PROVIDERS
-import dev.nathanpb.reauth.controller.IdentityController
-import dev.nathanpb.reauth.data.ReauthJWT
+import dev.nathanpb.reauth.resource.IdentityController
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
+import dev.nathanpb.reauth.oauth.server.ReauthJWT
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*

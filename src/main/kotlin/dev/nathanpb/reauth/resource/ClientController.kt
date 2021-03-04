@@ -17,26 +17,18 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.controller
+package dev.nathanpb.reauth.resource
 
-import com.github.benmanes.caffeine.cache.Caffeine
-import dev.nathanpb.reauth.data.AuthorizeEndpointParams
-import dev.nathanpb.reauth.randomHex
-import java.util.concurrent.TimeUnit
+object ClientController {
 
-object SessionNoncePool {
-
-    private val noncePool = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .build<String, AuthorizeEndpointParams>()
-
-    fun put(request: AuthorizeEndpointParams): String {
-        return randomHex(4).also { noncePool.put(it, request) }
-    }
-
-    fun retrieve(nonce: String): AuthorizeEndpointParams? {
-        return noncePool.getIfPresent(nonce)?.also {
-            noncePool.invalidate(nonce)
+    suspend fun registerNewClient(displayName: String): Client {
+        return Client(displayName = displayName).also {
+            Client.collection.save(it)
         }
     }
+
+    suspend fun findClientById(clientId: String): Client? {
+        return Client.collection.findOneById(clientId)
+    }
+
 }

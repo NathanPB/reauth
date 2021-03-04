@@ -17,9 +17,9 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.oauth
+package dev.nathanpb.reauth.oauth.model
 
-import dev.nathanpb.reauth.data.ReauthJWT
+import dev.nathanpb.reauth.oauth.server.ReauthJWT
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.Instant

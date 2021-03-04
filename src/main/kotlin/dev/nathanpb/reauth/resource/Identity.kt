@@ -17,12 +17,12 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.data
+package dev.nathanpb.reauth.resource
 
 import com.mongodb.client.model.Updates
 import dev.nathanpb.reauth.config.PROVIDERS
 import dev.nathanpb.reauth.mongoDb
-import dev.nathanpb.reauth.oauth.OAuth2Token
+import dev.nathanpb.reauth.oauth.model.OAuth2Token
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Contextual

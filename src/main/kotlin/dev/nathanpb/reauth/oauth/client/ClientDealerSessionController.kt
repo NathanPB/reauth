@@ -17,31 +17,30 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.controller
+package dev.nathanpb.reauth.oauth.client
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import dev.nathanpb.reauth.data.AuthorizeEndpointParams
-import dev.nathanpb.reauth.data.Client
-import dev.nathanpb.reauth.oauth.client.OAuth2Dealer
+import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointRequest
+import dev.nathanpb.reauth.resource.Client
 import dev.nathanpb.reauth.config.OAuth2Provider
 import dev.nathanpb.reauth.randomHex
 import java.util.concurrent.TimeUnit
 
 class DealerSession internal constructor(
     val id: String,
-    val dealer: OAuth2Dealer,
+    val dealer: OAuth2ClientDealer,
     val client: Client,
-    val initialParams: AuthorizeEndpointParams
+    val initialRequest: AuthorizeEndpointRequest
 )
 
-object DealerSessionController {
+object ClientDealerSessionController {
     private val sessionPool = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .build<String, DealerSession>()
 
-    fun new(provider: OAuth2Provider, client: Client, params: AuthorizeEndpointParams): DealerSession {
+    fun new(provider: OAuth2Provider, client: Client, request: AuthorizeEndpointRequest): DealerSession {
         val sessionId = randomHex(4)
-        return DealerSession(sessionId, OAuth2Dealer(provider), client, params).also {
+        return DealerSession(sessionId, OAuth2ClientDealer(provider), client, request).also {
             sessionPool.put(sessionId, it)
         }
     }

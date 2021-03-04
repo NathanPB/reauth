@@ -25,12 +25,12 @@ import com.github.kittinunf.fuel.coroutines.awaitStringResponse
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import dev.nathanpb.reauth.config.BASE_URL
 import dev.nathanpb.reauth.config.OAuth2Provider
-import dev.nathanpb.reauth.data.AuthorizeEndpointResponse
-import dev.nathanpb.reauth.oauth.OAuth2Token
+import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointResponse
+import dev.nathanpb.reauth.oauth.model.OAuth2Token
 import io.ktor.http.*
 import org.bson.Document
 
-class OAuth2Dealer(val provider: OAuth2Provider) {
+class OAuth2ClientDealer(val provider: OAuth2Provider) {
 
     private var code: String? = null
     private var token: OAuth2Token? = null

@@ -17,7 +17,7 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.data
+package dev.nathanpb.reauth.oauth.server
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm

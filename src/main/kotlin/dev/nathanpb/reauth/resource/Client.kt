@@ -17,14 +17,25 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.data
+package dev.nathanpb.reauth.resource
 
-import dev.nathanpb.reauth.oauth.OAuth2Token
+import dev.nathanpb.reauth.mongoDb
 import dev.nathanpb.reauth.randomHex
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
 
-data class TokenCodeMapper (
-    val code: String = randomHex(4),
-    val token: OAuth2Token,
+@Serializable
+data class Client (
+    @Contextual @SerialName("_id") val clientId: Id<Client> = newId(),
+    val clientSecret: String = randomHex(128),
+    val displayName: String,
+    val redirectUris: List<String> = emptyList(),
+    val skipConsent: Boolean = false, // TODO make skipConsent work
 ) {
-    constructor(_token: OAuth2Token): this(token = _token) // _ to prevent recursive call. I know, this is stupid
+    companion object {
+        val collection = mongoDb.getCollection<Client>()
+    }
 }

@@ -17,12 +17,11 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.controller
+package dev.nathanpb.reauth.resource
 
 import com.mongodb.client.model.Filters
-import dev.nathanpb.reauth.data.Identity
 import dev.nathanpb.reauth.md5Hex
-import dev.nathanpb.reauth.oauth.OAuth2Token
+import dev.nathanpb.reauth.oauth.model.OAuth2Token
 import dev.nathanpb.reauth.config.OAuth2Provider
 import org.bson.Document
 import org.litote.kmongo.*

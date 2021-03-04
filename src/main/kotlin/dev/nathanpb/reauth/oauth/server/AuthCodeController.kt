@@ -17,13 +17,16 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.controller
+package dev.nathanpb.reauth.oauth.server
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import dev.nathanpb.reauth.data.ReauthJWT
-import dev.nathanpb.reauth.data.TokenCodeMapper
-import dev.nathanpb.reauth.oauth.OAuth2Token
+import dev.nathanpb.reauth.resource.ClientController
+import dev.nathanpb.reauth.oauth.model.OAuth2Token
+import dev.nathanpb.reauth.randomHex
 import java.util.concurrent.TimeUnit
+
+data class TokenCodeMapper (val code: String = randomHex(4), val token: OAuth2Token)
+
 
 // TODO expire a code if requested two times
 // https://tools.ietf.org/html/rfc6749#section-4.1.2
@@ -34,7 +37,7 @@ object AuthCodeController {
         .build<String, TokenCodeMapper>()
 
     fun putTokenInThePool(token: OAuth2Token): String {
-        return TokenCodeMapper(token).apply {
+        return TokenCodeMapper(token = token).apply {
             codes.put(code, this)
         }.code
     }

@@ -17,7 +17,7 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.data
+package dev.nathanpb.reauth.oauth.model
 
 import dev.nathanpb.reauth.oauth.AuthorizationError
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException

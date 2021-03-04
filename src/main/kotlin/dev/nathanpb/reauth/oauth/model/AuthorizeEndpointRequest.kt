@@ -17,15 +17,15 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.data
+package dev.nathanpb.reauth.oauth.model
 
-import dev.nathanpb.reauth.controller.ClientController
+import dev.nathanpb.reauth.resource.ClientController
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.security.InvalidParameterException
 
 // https://tools.ietf.org/html/rfc6749#section-4.1.1
-data class AuthorizeEndpointParams(
+data class AuthorizeEndpointRequest(
     val clientId: String,
     val responseType: String,
     val redirectUri: String?,
@@ -33,8 +33,8 @@ data class AuthorizeEndpointParams(
     val state: String?
 ) {
     companion object {
-        fun receive(parameters: Parameters): AuthorizeEndpointParams {
-            return AuthorizeEndpointParams(
+        fun receive(parameters: Parameters): AuthorizeEndpointRequest {
+            return AuthorizeEndpointRequest(
                 parameters["client_id"] ?: throw InvalidParameterException("missing client_id"),
                 parameters["response_type"] ?: throw InvalidParameterException("missing response_type"),
                 parameters["redirect_uri"],

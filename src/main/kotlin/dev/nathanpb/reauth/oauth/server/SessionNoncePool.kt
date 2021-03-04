@@ -17,25 +17,26 @@
  * along with Wheres My Duo.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.data
+package dev.nathanpb.reauth.oauth.server
 
-import dev.nathanpb.reauth.mongoDb
+import com.github.benmanes.caffeine.cache.Caffeine
+import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointRequest
 import dev.nathanpb.reauth.randomHex
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import org.litote.kmongo.Id
-import org.litote.kmongo.newId
+import java.util.concurrent.TimeUnit
 
-@Serializable
-data class Client (
-    @Contextual @SerialName("_id") val clientId: Id<Client> = newId(),
-    val clientSecret: String = randomHex(128),
-    val displayName: String,
-    val redirectUris: List<String> = emptyList(),
-    val skipConsent: Boolean = false, // TODO make skipConsent work
-) {
-    companion object {
-        val collection = mongoDb.getCollection<Client>()
+object SessionNoncePool {
+
+    private val noncePool = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .build<String, AuthorizeEndpointRequest>()
+
+    fun put(request: AuthorizeEndpointRequest): String {
+        return randomHex(4).also { noncePool.put(it, request) }
+    }
+
+    fun retrieve(nonce: String): AuthorizeEndpointRequest? {
+        return noncePool.getIfPresent(nonce)?.also {
+            noncePool.invalidate(nonce)
+        }
     }
 }

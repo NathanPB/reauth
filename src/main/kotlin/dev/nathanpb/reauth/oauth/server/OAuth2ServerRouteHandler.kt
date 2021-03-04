@@ -21,10 +21,8 @@ package dev.nathanpb.reauth.oauth.server
 
 import dev.nathanpb.reauth.config.APP_AUTHORIZE_URL
 import dev.nathanpb.reauth.config.SCOPES
-import dev.nathanpb.reauth.controller.AuthCodeController
-import dev.nathanpb.reauth.controller.SessionNoncePool
-import dev.nathanpb.reauth.data.AuthorizeEndpointParams
-import dev.nathanpb.reauth.data.TokenEndpointParams
+import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointRequest
+import dev.nathanpb.reauth.oauth.model.TokenEndpointRequest
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -36,7 +34,7 @@ object OAuth2ServerRouteHandler {
 
     suspend fun handleAuthorize(call: ApplicationCall) {
         val params = try {
-            AuthorizeEndpointParams.receive(call.request.queryParameters).apply {
+            AuthorizeEndpointRequest.receive(call.request.queryParameters).apply {
                 if (responseType != "code") {
                     return call.respond(HttpStatusCode.NotImplemented, "\"${responseType}\" is invalid or not implemented")
                 }
@@ -69,7 +67,7 @@ object OAuth2ServerRouteHandler {
 
     suspend fun handleToken(call: ApplicationCall) {
         val params = try {
-            call.receive<TokenEndpointParams>().apply {
+            call.receive<TokenEndpointRequest>().apply {
                 if (grantType != "authorization_code") {
                     return call.respond(HttpStatusCode.NotImplemented, "\"${grantType}\" is invalid or not implemented")
                 }
