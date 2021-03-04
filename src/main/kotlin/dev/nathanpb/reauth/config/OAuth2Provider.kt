@@ -20,17 +20,19 @@
 package dev.nathanpb.reauth.config
 
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class OAuth2Provider (
     val id: String,
     val clientId: String,
     val clientSecret: String,
-    val scopes: List<String>,
+    val scopes: Set<String>,
     val authorizeURL: String,
     val userDataURL: String,
     val tokenURL: String,
-    val linkageField: String,
-    val idField: String
+    val linkageField: String = "email",
+    val idField: String = "id"
 ) {
     fun buildAuthorizeUrl(sessionId: String): String {
         return URLBuilder(authorizeURL).apply {

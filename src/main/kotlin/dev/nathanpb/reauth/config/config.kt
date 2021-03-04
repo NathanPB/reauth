@@ -36,38 +36,7 @@ val SECRET = System.getenv("SECRET") ?: error("SECRET is not set")
 val APP_AUTHORIZE_URL = System.getenv("APP_AUTHORIZE_URL") ?: error("APP_AUTHORIZE_URL is not set")
 
 @OptIn(ExperimentalPathApi::class)
-val SCOPES = run {
-    val list = Json.decodeFromString(SCOPES_FILE.readText()) as List<String>
-    val distinct = list.toSet()
-    if (distinct.size != list.size) {
-        error("scopes list contains duplicated scope")
-    }
-
-    distinct
-}
+val SCOPES = Json.decodeFromString<Set<String>>(SCOPES_FILE.readText())
 
 @OptIn(ExperimentalPathApi::class)
-val PROVIDERS = run {
-    val text = PROVIDERS_FILE.readText()
-    Json.parseToJsonElement(text)
-        .jsonArray
-        .filterIsInstance<JsonObject>()
-        .map {
-            OAuth2Provider(
-                it["id"]?.jsonPrimitive?.content ?: error("ID is not set"),
-                it["clientId"]?.jsonPrimitive?.content ?: error("Client ID is not set"),
-                it["clientSecret"]?.jsonPrimitive?.content ?: error("Client Secret is not set"),
-                it["scopes"]
-                    ?.jsonArray
-                    ?.filterIsInstance<JsonPrimitive>()
-                    ?.filter(JsonPrimitive::isString)
-                    ?.map(JsonPrimitive::content)
-                    .orEmpty(),
-                it["authorizeURL"]?.jsonPrimitive?.content ?: error("Authorize URL is not set"),
-                it["userDataURL"]?.jsonPrimitive?.content ?: error("User Data Endpoint URL is not set"),
-                it["tokenURL"]?.jsonPrimitive?.content ?: error("Token URL is not set"),
-                it["linkageField"]?.jsonPrimitive?.content ?: "email",
-                it["idField"]?.jsonPrimitive?.content ?: "id"
-            )
-        }
-}
+val PROVIDERS = Json.decodeFromString<List<OAuth2Provider>>(PROVIDERS_FILE.readText())
