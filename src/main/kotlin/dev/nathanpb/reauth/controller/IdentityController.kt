@@ -57,7 +57,7 @@ object IdentityController {
             //   e.g. User logs in for the first time with Discord, then changes its Discord email and attempts to log in again
             //   in this situation, the old uid (based in the old email address) will be kept
             combine(
-                set(SetTo(Identity::data, Document(data))),
+                set(SetTo(Identity::data, Document(data).toBsonDocument())),
                 set(SetTo(Identity::token, token))
             )
         )
@@ -70,10 +70,10 @@ object IdentityController {
         return Identity(
             uid = uid,
             provider = provider.id,
-            data = Document(data),
             token = token
         ).also {
             Identity.collection.insertOne(it)
+            it.data = Document(data).toBsonDocument()
         }
     }
 
