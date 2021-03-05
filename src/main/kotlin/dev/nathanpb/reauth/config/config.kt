@@ -31,9 +31,11 @@ val PROVIDERS_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./provi
 val SCOPES_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./scopes.json")
 val BASE_URL = System.getenv("BASE_URL") ?: error("BASE_URL is not set")
 val ISSUER = System.getenv("ISSUER") ?: "reauth"
-val SECRET = System.getenv("SECRET") ?: error("SECRET is not set")
 
 val APP_AUTHORIZE_URL = System.getenv("APP_AUTHORIZE_URL") ?: error("APP_AUTHORIZE_URL is not set")
+
+val PUBLIC_KEY = readX509PublicKey(Paths.get(System.getenv("PUBLIC_KEY_FILE") ?: "./public_key.pem"))
+val PRIVATE_KEY = readPKCS8PrivateKey(Paths.get(System.getenv("PRIVATE_KEY_FILE") ?: "./private_key.pem"))
 
 @OptIn(ExperimentalPathApi::class)
 val SCOPES = Json.decodeFromString<Set<String>>(SCOPES_FILE.readText())

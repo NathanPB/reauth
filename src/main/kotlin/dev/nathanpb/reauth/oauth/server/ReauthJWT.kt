@@ -22,9 +22,10 @@ package dev.nathanpb.reauth.oauth.server
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import dev.nathanpb.reauth.config.ISSUER
-import dev.nathanpb.reauth.config.SECRET
+import dev.nathanpb.reauth.config.PRIVATE_KEY
+import io.ktor.util.*
 
-private val hmac256 = Algorithm.HMAC256(SECRET)
+private val hmac256 = Algorithm.HMAC256(hex(PRIVATE_KEY.encoded))
 
 data class ReauthJWT (
     val clientId: String,
