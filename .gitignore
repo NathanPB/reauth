@@ -3,5 +3,6 @@
 build
 .env
 example/node_modules
+example/server_public_key.pem
 public_key.pem
 private_key.pem

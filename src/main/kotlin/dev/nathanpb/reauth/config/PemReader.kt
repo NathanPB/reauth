@@ -21,8 +21,8 @@ package dev.nathanpb.reauth.config
 
 import java.nio.file.Path
 import java.security.KeyFactory
-import java.security.PrivateKey
-import java.security.PublicKey
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
@@ -32,23 +32,23 @@ import kotlin.io.path.readText
 private val keyFactor = KeyFactory.getInstance("RSA")
 
 @OptIn(ExperimentalPathApi::class)
-fun readX509PublicKey(file: Path): PublicKey {
+fun readX509PublicKey(file: Path): RSAPublicKey {
     val text = file.readText()
         .replace("-----BEGIN PUBLIC KEY-----", "")
         .replace(System.lineSeparator(), "")
         .replace("-----END PUBLIC KEY-----", "")
 
     val keySpec = X509EncodedKeySpec(Base64.getDecoder().decode(text))
-    return keyFactor.generatePublic(keySpec)
+    return keyFactor.generatePublic(keySpec) as RSAPublicKey
 }
 
 @OptIn(ExperimentalPathApi::class)
-fun readPKCS8PrivateKey(file: Path): PrivateKey {
+fun readPKCS8PrivateKey(file: Path): RSAPrivateKey {
     val text = file.readText()
         .replace("-----BEGIN PRIVATE KEY-----", "")
         .replace(System.lineSeparator(), "")
         .replace("-----END PRIVATE KEY-----", "")
 
     val keySpec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(text))
-    return keyFactor.generatePrivate(keySpec)
+    return keyFactor.generatePrivate(keySpec) as RSAPrivateKey
 }

@@ -81,6 +81,10 @@ fun main() {
                     OAuth2ServerRouteHandler.handleAuthorize(call)
                 }
 
+                get("consent") {
+                    OAuth2ServerRouteHandler.handleConsent(call)
+                }
+
                 post("token") {
                     OAuth2ServerRouteHandler.handleToken(call)
                 }

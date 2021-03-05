@@ -33,6 +33,7 @@ val BASE_URL = System.getenv("BASE_URL") ?: error("BASE_URL is not set")
 val ISSUER = System.getenv("ISSUER") ?: "reauth"
 
 val APP_AUTHORIZE_URL = System.getenv("APP_AUTHORIZE_URL") ?: error("APP_AUTHORIZE_URL is not set")
+val APP_CONSENT_URL = System.getenv("APP_CONSENT_URL") ?: error("APP_CONSENT_URI is not set")
 
 val PUBLIC_KEY = readX509PublicKey(Paths.get(System.getenv("PUBLIC_KEY_FILE") ?: "./public_key.pem"))
 val PRIVATE_KEY = readPKCS8PrivateKey(Paths.get(System.getenv("PRIVATE_KEY_FILE") ?: "./private_key.pem"))

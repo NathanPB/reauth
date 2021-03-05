@@ -20,10 +20,16 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const Axios = require('axios')
+const fs = require("fs");
+const jwt = require('jsonwebtoken')
+const { Liquid } = require('liquidjs')
 const port = 3000
 
 const app = express()
 app.use(bodyParser.json())
+app.engine('liquid', new Liquid().express())
+app.set('views', './views')
+app.set('view engine', 'liquid')
 
 const reauth = Axios.create({
   baseURL: 'http://localhost:6660/'
@@ -35,6 +41,22 @@ app.get('/', (req, res) => {
 
 app.get('/authorize', (req, res) => {
   res.sendFile('views/authorize.html', { root: __dirname })
+})
+
+app.get('/authorize/consent', (req, res) => {
+  const token = jwt.verify(
+    req.query.token,
+    fs.readFileSync('./server_public_key.pem'),
+    { issuer: "reauth" },
+    (_, decoded) => {
+      if (decoded && decoded.sub === "resource_owner_consent") {
+        console.log(decoded)
+        res.render('consent.liquid', decoded)
+      } else {
+        res.sendStatus(500)
+      }
+    }
+  )
 })
 
 app.get('/callback', async (req, res) => {

@@ -18,17 +18,24 @@
  */
 
 package dev.nathanpb.reauth.oauth.client
-import dev.nathanpb.reauth.config.OAuth2Provider
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import dev.nathanpb.reauth.config.*
 import dev.nathanpb.reauth.oauth.server.AuthCodeController
 import dev.nathanpb.reauth.resource.IdentityController
 import dev.nathanpb.reauth.oauth.server.SessionNoncePool
 import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointResponse
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.model.OAuth2Token
+import dev.nathanpb.reauth.oauth.server.ConsentController
+import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
+import io.ktor.util.date.*
 import java.lang.Exception
+import java.time.Instant
+import java.util.*
 
 class OAuth2ClientRouteHandler(private val provider: OAuth2Provider) {
 
@@ -58,15 +65,26 @@ class OAuth2ClientRouteHandler(private val provider: OAuth2Provider) {
                 session.dealer.getUserData()
             ).uid
 
+            if (!session.client.skipConsent) {
+                val redirectURL = URLBuilder(APP_CONSENT_URL).apply {
+                    parameters["token"] = JWT.create()
+                        .withIssuer(ISSUER)
+                        .withJWTId(ConsentController.createConsentWaiter(uid, session))
+                        .withExpiresAt(Instant.now().plusSeconds(600).toGMTDate().toJvmDate())
+                        .withSubject("resource_owner_consent")
+                        .withNotBefore(Date())
+                        .withAudience(uid)
 
-            val token = OAuth2Token.newBearerToken(uid, session.client.clientId.toString(), session.initialRequest.scope.orEmpty().split(" ").toSet())
+                        .withClaim("client_display_name", session.client.displayName)
+                        .withClaim("client_id", session.client.clientId.toString())
+                        .withClaim("scope", session.initialRequest.scope)
+                        .sign(Algorithm.RSA256(PUBLIC_KEY, PRIVATE_KEY))
+                }
 
-            // TODO implement the "state" parameter. https://tools.ietf.org/html/rfc6749#section-4.1.2
-            val redirectURL = URLBuilder(session.initialRequest.redirectUri!!).apply {
-                parameters["code"] = AuthCodeController.putTokenInThePool(token)
+                return call.respondRedirect(redirectURL.buildString(), false)
             }
 
-            call.respondRedirect(redirectURL.buildString(), false)
+            return OAuth2ServerRouteHandler.redirectToCallback(uid, session, call)
         } catch (e: OAuth2AuthorizeException) {
             with(HttpStatusCode) {
                 if (e.error.statusCode in listOf(NotImplemented, BadRequest, BadGateway)) {
@@ -80,5 +98,4 @@ class OAuth2ClientRouteHandler(private val provider: OAuth2Provider) {
             return call.respond(HttpStatusCode.InternalServerError)
         }
     }
-
 }

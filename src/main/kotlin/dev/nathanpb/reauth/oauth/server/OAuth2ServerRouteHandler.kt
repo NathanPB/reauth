@@ -21,7 +21,9 @@ package dev.nathanpb.reauth.oauth.server
 
 import dev.nathanpb.reauth.config.APP_AUTHORIZE_URL
 import dev.nathanpb.reauth.config.SCOPES
+import dev.nathanpb.reauth.oauth.client.DealerSession
 import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointRequest
+import dev.nathanpb.reauth.oauth.model.OAuth2Token
 import dev.nathanpb.reauth.oauth.model.TokenEndpointRequest
 import io.ktor.application.*
 import io.ktor.http.*
@@ -31,6 +33,17 @@ import kotlinx.serialization.SerializationException
 import java.security.InvalidParameterException
 
 object OAuth2ServerRouteHandler {
+
+    suspend fun redirectToCallback(uid: String, session: DealerSession, call: ApplicationCall) {
+        val token = OAuth2Token.newBearerToken(uid, session.client.clientId.toString(), session.initialRequest.scope.orEmpty().split(" ").toSet())
+
+        // TODO implement the "state" parameter. https://tools.ietf.org/html/rfc6749#section-4.1.2
+        val redirectURL = URLBuilder(session.initialRequest.redirectUri!!).apply {
+            parameters["code"] = AuthCodeController.putTokenInThePool(token)
+        }
+
+        call.respondRedirect(redirectURL.buildString(), false)
+    }
 
     suspend fun handleAuthorize(call: ApplicationCall) {
         val params = try {
@@ -84,5 +97,11 @@ object OAuth2ServerRouteHandler {
         token ?: return call.respond(HttpStatusCode.MultiStatus, listOf(401, 403, 404))
 
         call.respond(token)
+    }
+
+    suspend fun handleConsent(call: ApplicationCall) {
+        val nonce = call.request.queryParameters["code"] ?: return call.respond(HttpStatusCode.Unauthorized, "missing \"code\" parameter with the consent jwt id")
+        val (uid, session) = ConsentController.receiveConsent(nonce) ?: return call.respond(HttpStatusCode.Gone, "has your session timed out?")
+        return redirectToCallback(uid, session, call)
     }
 }
