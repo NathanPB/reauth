@@ -69,7 +69,10 @@ data class Identity(
         }.map {
             it.key
         }.fold(Document().toBsonDocument()) { doc, key ->
-            doc.append(key, data?.get(key))
+            val data = data?.get(key)
+            return if (data != null) {
+                doc.append(key, data)
+            } else doc
         }
     }
 }
