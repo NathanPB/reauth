@@ -23,8 +23,18 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.readText
+import kotlin.io.path.*
+
+@OptIn(ExperimentalPathApi::class)
+val DYNAMIC_DIR = Paths.get(System.getenv("DYNAMIC_DIR") ?: "./.dynamic").apply {
+    if (exists()) {
+        if (!isDirectory()) {
+            error(".dynamic dir could not be created")
+        }
+    } else {
+        createDirectory()
+    }
+}
 
 val PORT = System.getenv("PORT")?.toIntOrNull() ?: 6660
 val PROVIDERS_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./providers.json")
@@ -35,8 +45,7 @@ val ISSUER = System.getenv("ISSUER") ?: "reauth"
 val APP_AUTHORIZE_URL = System.getenv("APP_AUTHORIZE_URL") ?: error("APP_AUTHORIZE_URL is not set")
 val APP_CONSENT_URL = System.getenv("APP_CONSENT_URL") ?: error("APP_CONSENT_URI is not set")
 
-val PUBLIC_KEY = readX509PublicKey(Paths.get(System.getenv("PUBLIC_KEY_FILE") ?: "./public_key.pem"))
-val PRIVATE_KEY = readPKCS8PrivateKey(Paths.get(System.getenv("PRIVATE_KEY_FILE") ?: "./private_key.pem"))
+val RSA_KEYPAIR = readKeyPair(DYNAMIC_DIR)
 
 @OptIn(ExperimentalPathApi::class)
 val SCOPES = Json.decodeFromString<Set<String>>(SCOPES_FILE.readText())

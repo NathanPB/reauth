@@ -78,7 +78,7 @@ class OAuth2ClientRouteHandler(private val provider: OAuth2Provider) {
                         .withClaim("client_display_name", session.client.displayName)
                         .withClaim("client_id", session.client.clientId.toString())
                         .withClaim("scope", session.initialRequest.scope)
-                        .sign(Algorithm.RSA256(PUBLIC_KEY, PRIVATE_KEY))
+                        .sign(Algorithm.RSA256(RSA_KEYPAIR.public, RSA_KEYPAIR.private))
                 }
 
                 return call.respondRedirect(redirectURL.buildString(), false)

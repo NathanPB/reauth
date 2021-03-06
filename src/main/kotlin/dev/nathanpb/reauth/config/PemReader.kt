@@ -21,33 +21,76 @@ package dev.nathanpb.reauth.config
 
 import java.nio.file.Path
 import java.security.KeyFactory
+import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.readText
+import kotlin.io.path.*
 
 private val keyFactor = KeyFactory.getInstance("RSA")
 
+data class RSAKeyPair(val public: RSAPublicKey, val private: RSAPrivateKey)
+
 @OptIn(ExperimentalPathApi::class)
-fun readX509PublicKey(file: Path): RSAPublicKey {
+fun readKeyPair(dir: Path): RSAKeyPair {
+    val public = dir.resolve("public_key.pub")
+    val private = dir.resolve("private_key.key")
+
+    if (!public.isRegularFile() || !private.isRegularFile()) {
+        if (public.exists() || private.exists()) {
+            error("Cannot read or generate RSA key pair")
+        } else {
+            return generateRSAKeyPair().also {
+                public.writeLines(listOf(
+                    "-----BEGIN RSA PUBLIC KEY-----",
+                    Base64.getEncoder().encodeToString(it.public.encoded),
+                    "-----END RSA PUBLIC KEY-----\n"
+                ))
+
+                private.writeLines(listOf(
+                    "-----BEGIN RSA PRIVATE KEY-----",
+                    Base64.getEncoder().encodeToString(it.private.encoded),
+                    "-----END RSA PRIVATE KEY-----\n"
+                ))
+            }
+        }
+    }
+
+    return RSAKeyPair(
+        readX509PublicKey(public),
+        readPKCS8PrivateKey(private)
+    )
+}
+
+private fun generateRSAKeyPair() : RSAKeyPair {
+    val generator = KeyPairGenerator.getInstance("RSA")
+    generator.initialize(2048)
+    val pair = generator.generateKeyPair()
+    return RSAKeyPair(
+        pair.public as RSAPublicKey,
+        pair.private as RSAPrivateKey
+    )
+}
+
+@OptIn(ExperimentalPathApi::class)
+private fun readX509PublicKey(file: Path): RSAPublicKey {
     val text = file.readText()
-        .replace("-----BEGIN PUBLIC KEY-----", "")
+        .replace("-----BEGIN RSA PUBLIC KEY-----", "")
         .replace(System.lineSeparator(), "")
-        .replace("-----END PUBLIC KEY-----", "")
+        .replace("-----END RSA PUBLIC KEY-----", "")
 
     val keySpec = X509EncodedKeySpec(Base64.getDecoder().decode(text))
     return keyFactor.generatePublic(keySpec) as RSAPublicKey
 }
 
 @OptIn(ExperimentalPathApi::class)
-fun readPKCS8PrivateKey(file: Path): RSAPrivateKey {
+private fun readPKCS8PrivateKey(file: Path): RSAPrivateKey {
     val text = file.readText()
-        .replace("-----BEGIN PRIVATE KEY-----", "")
+        .replace("-----BEGIN RSA PRIVATE KEY-----", "")
         .replace(System.lineSeparator(), "")
-        .replace("-----END PRIVATE KEY-----", "")
+        .replace("-----END RSA PRIVATE KEY-----", "")
 
     val keySpec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(text))
     return keyFactor.generatePrivate(keySpec) as RSAPrivateKey
