@@ -20,7 +20,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const Axios = require('axios')
-const fs = require("fs");
 const jwt = require('jsonwebtoken')
 const { Liquid } = require('liquidjs')
 const port = 3000
@@ -43,16 +42,17 @@ app.get('/authorize', (req, res) => {
   res.sendFile('views/authorize.html', { root: __dirname })
 })
 
-app.get('/authorize/consent', (req, res) => {
-  const token = jwt.verify(
+app.get('/authorize/consent', async (req, res) => {
+  jwt.verify(
     req.query.token,
-    fs.readFileSync('./server_public_key.pem'),
+    (await reauth.get('public_key.pub')).data.replaceAll("RSA PUBLIC KEY", "PUBLIC KEY"),
     { issuer: "reauth" },
-    (_, decoded) => {
+    (e, decoded) => {
       if (decoded && decoded.sub === "resource_owner_consent") {
         console.log(decoded)
         res.render('consent.liquid', decoded)
       } else {
+        console.error(e)
         res.sendStatus(500)
       }
     }

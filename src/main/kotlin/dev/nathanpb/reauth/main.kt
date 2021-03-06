@@ -19,8 +19,10 @@
 
 package dev.nathanpb.reauth
 
+import com.mongodb.internal.HexUtils
 import dev.nathanpb.reauth.config.PORT
 import dev.nathanpb.reauth.config.PROVIDERS
+import dev.nathanpb.reauth.config.RSA_KEYPAIR
 import dev.nathanpb.reauth.resource.IdentityController
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
@@ -38,6 +40,8 @@ import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.id.IdGenerator
 import org.litote.kmongo.id.UUIDStringIdGenerator
 import org.litote.kmongo.reactivestreams.KMongo
+import java.security.MessageDigest
+import java.util.*
 
 val mongoClient = KMongo.createClient(System.getenv("MONGO_CONN_STRING") ?: error("MONGO_CONN_STRING is not set")).coroutine
 val mongoDb = mongoClient.getDatabase(System.getenv("MONGO_DB_NAME") ?: "reauth")
@@ -88,6 +92,21 @@ fun main() {
                 post("token") {
                     OAuth2ServerRouteHandler.handleToken(call)
                 }
+            }
+
+            get("public_key.pub") {
+                val key = """
+                    -----BEGIN RSA PUBLIC KEY-----
+                    ${Base64.getEncoder().encodeToString(RSA_KEYPAIR.public.encoded)}
+                    -----END RSA PUBLIC KEY-----
+                """.trimIndent()
+
+                val md5 = md5Hex(key)
+                val sha256 = HexUtils.toHex(MessageDigest.getInstance("SHA-256").digest(key.toByteArray()))
+                val sha512 = HexUtils.toHex(MessageDigest.getInstance("SHA-512").digest(key.toByteArray()))
+
+                call.response.header("Digest", "md5=$md5,sha-256=$sha256,sha-512=$sha512")
+                call.respond(key)
             }
 
             get("identity") {
