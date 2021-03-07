@@ -60,7 +60,6 @@ class OAuth2ClientRouteHandler(private val provider: OAuth2Provider) {
 
             session.dealer.receiveRedirect(params)
             val uid = IdentityController.saveIdentity(
-                session.dealer.getAccessToken(),
                 session.dealer.provider,
                 session.dealer.getUserData()
             ).uid

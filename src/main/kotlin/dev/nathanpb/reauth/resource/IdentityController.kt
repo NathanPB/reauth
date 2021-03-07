@@ -28,7 +28,7 @@ import org.litote.kmongo.*
 
 object IdentityController {
 
-    suspend fun saveIdentity(token: OAuth2Token, provider: OAuth2Provider, data: Map<String, Any>): Identity {
+    suspend fun saveIdentity(provider: OAuth2Provider, data: Map<String, Any>): Identity {
 
         // Asserts that the id and linkage fields that are going to be used exists
         val idData = data[provider.idField] ?: error("No id field '${provider.idField}' found")
@@ -55,10 +55,7 @@ object IdentityController {
             // Do not replace uid even if its out of sync with the current linkage field
             //   e.g. User logs in for the first time with Discord, then changes its Discord email and attempts to log in again
             //   in this situation, the old uid (based in the old email address) will be kept
-            combine(
-                set(SetTo(Identity::data, Document(data).toBsonDocument())),
-                set(SetTo(Identity::token, token))
-            )
+            set(SetTo(Identity::data, Document(data).toBsonDocument())),
         )
 
         if (updateExistingIdentify != null) {
@@ -68,8 +65,7 @@ object IdentityController {
         // If not already existing, create a brand new identity
         return Identity(
             uid = uid,
-            provider = provider.id,
-            token = token
+            provider = provider.id
         ).also {
             Identity.collection.insertOne(it)
             it.data = Document(data).toBsonDocument()

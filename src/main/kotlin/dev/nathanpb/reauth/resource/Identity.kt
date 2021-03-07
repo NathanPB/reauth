@@ -22,7 +22,6 @@ package dev.nathanpb.reauth.resource
 import com.mongodb.client.model.Updates
 import dev.nathanpb.reauth.config.PROVIDERS
 import dev.nathanpb.reauth.mongoDb
-import dev.nathanpb.reauth.oauth.model.OAuth2Token
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Contextual
@@ -38,8 +37,7 @@ import org.litote.kmongo.newId
 data class Identity(
     @Contextual @SerialName("_id") val id: Id<Identity> = newId(),
     val uid: String,
-    val provider: String,
-    val token: OAuth2Token
+    val provider: String
 ) {
     companion object {
         val collection = mongoDb.getCollection<Identity>()
