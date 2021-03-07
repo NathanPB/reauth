@@ -19,38 +19,27 @@
 
 package dev.nathanpb.reauth.oauth.model
 
-import dev.nathanpb.reauth.oauth.server.ReauthJWT
+import dev.nathanpb.reauth.epochSeconds
+import dev.nathanpb.reauth.oauth.server.ReauthAccessToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.Instant
-import java.util.concurrent.TimeUnit
 
-// https://tools.ietf.org/html/rfc6749#section-4.2.2
+// https://tools.ietf.org/html/rfc6749#section-4.1.4
 @Serializable
-data class OAuth2Token(
+data class TokenEndpointResponse(
     @SerialName("access_token") val accessToken: String,
     @SerialName("token_type") val tokenType: String,
     @SerialName("expires_in") val expiresIn: Long? = null,
-    @SerialName("refresh_token") val refreshToken: String? = null, // TODO refresh the tokens when they are about to expire
+    @SerialName("refresh_token") val refreshToken: String? = null,
     val scope: String? = null,
     val state: String? = null,
-    val createdAt: Long = Instant.now().epochSecond
 ) {
-
-    companion object {
-        fun newBearerToken(uid: String, clientId: String, scopes: Set<String>) = OAuth2Token(
-            ReauthJWT(clientId, uid, scopes).jwtString,
-            "Bearer",
-            TimeUnit.DAYS.toSeconds(12),
-            scope = scopes.map(String::toLowerCase).toSet().joinToString(" ")
-        )
-    }
-
-    fun isExpired() : Boolean {
-        return if (expiresIn == null) {
-            false // TODO validate with the token issuer
-        } else {
-            Instant.now().epochSecond >= createdAt + expiresIn
-        }
-    }
+    constructor(token: ReauthAccessToken, state: String? = null): this(
+        accessToken = token.jwtString,
+        tokenType = "Bearer",
+        expiresIn = token.expiresAt.epochSeconds - Instant.now().epochSecond,
+        scope = token.scopes.map(String::toLowerCase).toSet().joinToString(" "),
+        state = state
+    )
 }

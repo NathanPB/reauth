@@ -20,20 +20,20 @@
 package dev.nathanpb.reauth.oauth.client
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import dev.nathanpb.reauth.config.*
-import dev.nathanpb.reauth.oauth.server.AuthCodeController
-import dev.nathanpb.reauth.resource.IdentityController
-import dev.nathanpb.reauth.oauth.server.SessionNoncePool
-import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointResponse
+import dev.nathanpb.reauth.config.APP_CONSENT_URL
+import dev.nathanpb.reauth.config.ISSUER
+import dev.nathanpb.reauth.config.OAuth2Provider
+import dev.nathanpb.reauth.config.RSA_KEYPAIR
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
-import dev.nathanpb.reauth.oauth.model.OAuth2Token
+import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointResponse
 import dev.nathanpb.reauth.oauth.server.ConsentController
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
+import dev.nathanpb.reauth.oauth.server.SessionNoncePool
+import dev.nathanpb.reauth.resource.IdentityController
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.util.date.*
-import java.lang.Exception
 import java.time.Instant
 import java.util.*
 

@@ -26,14 +26,14 @@ import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import dev.nathanpb.reauth.config.BASE_URL
 import dev.nathanpb.reauth.config.OAuth2Provider
 import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointResponse
-import dev.nathanpb.reauth.oauth.model.OAuth2Token
+import dev.nathanpb.reauth.oauth.model.TokenEndpointResponse
 import io.ktor.http.*
 import org.bson.Document
 
 class OAuth2ClientDealer(val provider: OAuth2Provider) {
 
     private var code: String? = null
-    private var token: OAuth2Token? = null
+    private var token: TokenEndpointResponse? = null
     private var userData: Map<String, Any>? = null
 
     fun receiveRedirect(params: AuthorizeEndpointResponse) {
@@ -56,17 +56,17 @@ class OAuth2ClientDealer(val provider: OAuth2Provider) {
                 "code" to code,
                 "redirect_uri" to URLBuilder(BASE_URL).path("providers/${provider.id}/callback").buildString()
             )
-        ).awaitObjectResult<OAuth2Token>(kotlinxDeserializerOf())
+        ).awaitObjectResult<TokenEndpointResponse>(kotlinxDeserializerOf())
             .get()
 
     }
 
-    suspend fun getAccessToken(): OAuth2Token {
-        if (token?.isExpired() != false) {
+    private suspend fun getAccessToken(): TokenEndpointResponse {
+        // TODO check if the token is expired. Maybe attempt to refresh?
+        return token ?: kotlin.run {
             exchangeToken()
+            token ?: error("Unexpected state: Token somehow was not set")
         }
-
-        return token ?: error("Unexpected state: Token somehow was not set")
     }
 
     suspend fun getUserData(): Map<String, Any> {

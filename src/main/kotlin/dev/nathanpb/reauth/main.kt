@@ -23,10 +23,10 @@ import com.mongodb.internal.HexUtils
 import dev.nathanpb.reauth.config.PORT
 import dev.nathanpb.reauth.config.PROVIDERS
 import dev.nathanpb.reauth.config.RSA_KEYPAIR
-import dev.nathanpb.reauth.resource.IdentityController
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
-import dev.nathanpb.reauth.oauth.server.ReauthJWT
+import dev.nathanpb.reauth.oauth.server.ReauthAccessToken
+import dev.nathanpb.reauth.resource.IdentityController
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
@@ -122,7 +122,7 @@ fun main() {
 
                 val token = authString[1]
                 val jwt = kotlin.runCatching {
-                    ReauthJWT.fromToken(token)
+                    ReauthAccessToken.fromToken(token)
                 }.getOrNull()
 
                 return@get if (jwt != null) {

@@ -20,13 +20,9 @@
 package dev.nathanpb.reauth.oauth.server
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import dev.nathanpb.reauth.resource.ClientController
-import dev.nathanpb.reauth.oauth.model.OAuth2Token
 import dev.nathanpb.reauth.randomHex
+import dev.nathanpb.reauth.resource.ClientController
 import java.util.concurrent.TimeUnit
-
-data class TokenCodeMapper (val code: String = randomHex(4), val token: OAuth2Token)
-
 
 // TODO expire a code if requested two times
 // https://tools.ietf.org/html/rfc6749#section-4.1.2
@@ -34,22 +30,21 @@ object AuthCodeController {
 
     private val codes = Caffeine.newBuilder()
         .expireAfterWrite(10, TimeUnit.MINUTES)
-        .build<String, TokenCodeMapper>()
+        .build<String, ReauthAccessToken>()
 
-    fun putTokenInThePool(token: OAuth2Token): String {
-        return TokenCodeMapper(token = token).apply {
-            codes.put(code, this)
-        }.code
+    fun putTokenInThePool(token: ReauthAccessToken): String {
+        val code = randomHex(4)
+        codes.put(code, token)
+        return code
     }
 
-    suspend fun exchangeCode(code: String, clientSecret: String): OAuth2Token? {
+    suspend fun exchangeCode(code: String, clientSecret: String): ReauthAccessToken? {
         val token = codes.getIfPresent(code) ?: return null
-        val jtw = ReauthJWT.fromToken(token.token.accessToken)
-        val client = ClientController.findClientById(jtw.clientId) ?: return null
+        val client = ClientController.findClientById(token.clientId) ?: return null
 
         if (client.clientSecret == clientSecret) {
             codes.invalidate(code)
-            return token.token
+            return token
         }
 
         return null

@@ -23,19 +23,25 @@ import dev.nathanpb.reauth.config.APP_AUTHORIZE_URL
 import dev.nathanpb.reauth.config.SCOPES
 import dev.nathanpb.reauth.oauth.client.DealerSession
 import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointRequest
-import dev.nathanpb.reauth.oauth.model.OAuth2Token
 import dev.nathanpb.reauth.oauth.model.TokenEndpointRequest
+import dev.nathanpb.reauth.oauth.model.TokenEndpointResponse
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import kotlinx.serialization.SerializationException
 import java.security.InvalidParameterException
+import java.time.LocalDateTime
 
 object OAuth2ServerRouteHandler {
 
     suspend fun redirectToCallback(uid: String, session: DealerSession, call: ApplicationCall) {
-        val token = OAuth2Token.newBearerToken(uid, session.client.clientId.toString(), session.initialRequest.scope.orEmpty().split(" ").toSet())
+        val token = ReauthAccessToken(
+            uid = uid,
+            clientId = session.client.clientId.toString(),
+            scopes =  session.initialRequest.scope.orEmpty().split(" ").toSet(),
+            expiresAt = LocalDateTime.now().plusDays(12) // TODO maybe "unhardcode" this?
+        )
 
         val redirectURL = URLBuilder(session.initialRequest.redirectUri!!).apply {
             parameters["code"] = AuthCodeController.putTokenInThePool(token)
@@ -97,9 +103,9 @@ object OAuth2ServerRouteHandler {
         }
 
         val token = AuthCodeController.exchangeCode(params.code, params.clientSecret!!) // This is asserted to not be null in the statements above
-        token ?: return call.respond(HttpStatusCode.MultiStatus, listOf(401, 403, 404))
+        token ?: return call.respond(HttpStatusCode.MultiStatus, listOf(401, 403, 404)) // TODO make this response more accurate
 
-        call.respond(token)
+        call.respond(TokenEndpointResponse(token))
     }
 
     suspend fun handleConsent(call: ApplicationCall) {
