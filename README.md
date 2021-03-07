@@ -14,6 +14,8 @@ ReAuth works by abstracting and summarizing the oAuth 2.0 implementation of vari
 
 So, instead of having to manage by hand the tokens, endpoints and resources for dozens of different providers, developers can just consume the reAuth endpoints and it will do everything for them.
 
+![ReAuth overview diagram](./docs/overview.png)
+
 ## Getting Started and Documentations
 
 You can find the ReAuth documentations [here](docs). There you will find some markdown files that explain how some steps work to help getting you started.
