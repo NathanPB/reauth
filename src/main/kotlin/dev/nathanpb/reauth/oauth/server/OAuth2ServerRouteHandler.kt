@@ -37,9 +37,12 @@ object OAuth2ServerRouteHandler {
     suspend fun redirectToCallback(uid: String, session: DealerSession, call: ApplicationCall) {
         val token = OAuth2Token.newBearerToken(uid, session.client.clientId.toString(), session.initialRequest.scope.orEmpty().split(" ").toSet())
 
-        // TODO implement the "state" parameter. https://tools.ietf.org/html/rfc6749#section-4.1.2
         val redirectURL = URLBuilder(session.initialRequest.redirectUri!!).apply {
             parameters["code"] = AuthCodeController.putTokenInThePool(token)
+
+            if (session.initialRequest.state != null) {
+                parameters["state"] = session.initialRequest.state
+            }
         }
 
         call.respondRedirect(redirectURL.buildString(), false)
