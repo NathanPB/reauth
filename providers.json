@@ -2,7 +2,7 @@
   {
     "id": "discord",
     "clientId": "812852515669278751",
-    "clientSecret": "-ibHlBo2uuYokxpVfsCMFXIOcCcRkn59",
+    "clientSecret": "very cool",
     "scopes": ["identify", "email"],
     "authorizeURL": "https://discord.com/api/oauth2/authorize",
     "tokenURL": "https://discord.com/api/oauth2/token",
