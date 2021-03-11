@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.nathanpb"
-version = "0.3.1"
+version = "0.3.2"
 
 repositories {
     mavenCentral()
@@ -24,6 +24,7 @@ dependencies {
     implementation("org.litote.kmongo:kmongo-coroutine-serialization:4.2.4")
     implementation("com.github.ben-manes.caffeine:caffeine:3.0.0")
     implementation("com.auth0:java-jwt:3.14.0")
+    implementation("org.graalvm.js:js:21.0.0.2")
 
     testImplementation("junit", "junit", "4.12")
 }

@@ -59,18 +59,4 @@ data class Identity(
                 collection.updateOneById(id, Updates.set("data", value))
             }
         }
-
-    fun getDataForScopes(scopes: Set<String>) : BsonDocument? {
-        val provider = PROVIDERS.firstOrNull { it.id == provider } ?: return null
-        return provider.dataAccessRules.entries.filter {
-            scopes.any { scope -> scope in it.value }
-        }.map {
-            it.key
-        }.fold(Document().toBsonDocument()) { doc, key ->
-            val data = data?.get(key)
-            return if (data != null) {
-                doc.append(key, data)
-            } else doc
-        }
-    }
 }

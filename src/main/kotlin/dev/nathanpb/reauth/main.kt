@@ -20,9 +20,7 @@
 package dev.nathanpb.reauth
 
 import com.mongodb.internal.HexUtils
-import dev.nathanpb.reauth.config.PORT
-import dev.nathanpb.reauth.config.PROVIDERS
-import dev.nathanpb.reauth.config.RSA_KEYPAIR
+import dev.nathanpb.reauth.config.*
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
 import dev.nathanpb.reauth.oauth.server.ReauthAccessToken
@@ -128,29 +126,13 @@ fun main() {
                 }.getOrNull()
 
                 return@get if (jwt != null) {
-                    val identities = IdentityController.findIdentities(jwt.uid)
-                        .associateWith { it.getDataForScopes(jwt.scopes) }
-                        .filter { (_, value) -> value != null && value.isNotEmpty()}
+                    val identity = IdentityController.findIdentities(jwt.uid)
+                        .filter { PROVIDERS.any { p -> p.id == it.provider } && it.data != null }
+                        .map(::IdentityBuilder)
+                        .onEach { it.applyScopeFilter(jwt.scopes) }
+                        .let(IDENTITY_MAPPER::reduce)
 
-                    // cursed kotlin
-                    // todo what about being a decent human being?
-                    call.respond(
-                        """
-                            [
-                                ${
-                            identities.entries.joinToString(", ") { (it, data) ->
-                                """
-                                {
-                                    "uid": "${it.id}",
-                                    "provider": "${it.provider}",
-                                    "data": $data
-                                }
-                                """.trimIndent()
-                            }
-                                }
-                            ]
-                        """.trimIndent()
-                    )
+                    call.respond(identity)
                 } else call.respond(HttpStatusCode.Forbidden)
             }
 

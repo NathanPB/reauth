@@ -39,6 +39,7 @@ val DYNAMIC_DIR = Paths.get(System.getenv("DYNAMIC_DIR") ?: "./.dynamic").apply 
 val PORT = System.getenv("PORT")?.toIntOrNull() ?: 6660
 val PROVIDERS_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./providers.json")
 val SCOPES_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./scopes.json")
+val IDENTITY_FILE: Path = Paths.get(System.getenv("IDENTITY_FILE") ?: "./identity.json")
 val BASE_URL = System.getenv("BASE_URL") ?: error("BASE_URL is not set")
 val ISSUER = System.getenv("ISSUER") ?: "reauth"
 
@@ -51,3 +52,6 @@ val SCOPES = Json.decodeFromString<Set<String>>(SCOPES_FILE.readText())
 
 @OptIn(ExperimentalPathApi::class)
 val PROVIDERS = Json.decodeFromString<List<OAuth2Provider>>(PROVIDERS_FILE.readText())
+
+@OptIn(ExperimentalPathApi::class)
+val IDENTITY_MAPPER = IdentityMapper(Json.decodeFromString(IDENTITY_FILE.readText()))
