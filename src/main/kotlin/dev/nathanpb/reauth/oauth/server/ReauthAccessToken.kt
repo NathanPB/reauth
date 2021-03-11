@@ -26,10 +26,7 @@ import dev.nathanpb.reauth.config.RSA_KEYPAIR
 import dev.nathanpb.reauth.randomHex
 import dev.nathanpb.reauth.toDate
 import dev.nathanpb.reauth.toLocalDateTime
-import io.ktor.util.*
 import java.time.LocalDateTime
-
-private val hmac256 = Algorithm.HMAC256(hex(RSA_KEYPAIR.private.encoded))
 
 data class ReauthAccessToken (
     val tokenId: String = randomHex(8),
@@ -40,7 +37,7 @@ data class ReauthAccessToken (
 ) {
     companion object {
         fun fromToken(token: String): ReauthAccessToken {
-            return JWT.require(hmac256)
+            return JWT.require(Algorithm.RSA256(RSA_KEYPAIR.public, RSA_KEYPAIR.private))
                 .withIssuer(ISSUER)
                 .withSubject("access_token")
                 .withClaimPresence("client_id")
@@ -68,6 +65,6 @@ data class ReauthAccessToken (
             .withClaim("uid", uid)
             .withClaim("client_id", clientId)
             .withArrayClaim("scope", scopes.toTypedArray())
-            .sign(hmac256)
+            .sign(Algorithm.RSA256(RSA_KEYPAIR.public, RSA_KEYPAIR.private))
     }
 }
