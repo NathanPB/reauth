@@ -38,11 +38,7 @@ app.get('/', (req, res) => {
   res.sendFile('views/index.html', { root: __dirname })
 })
 
-app.get('/authorize', (req, res) => {
-  res.sendFile('views/authorize.html', { root: __dirname })
-})
-
-app.get('/authorize/consent', async (req, res) => {
+app.get('/consent', async (req, res) => {
   jwt.verify(
     req.query.token,
     (await reauth.get('public_key.pub')).data.replaceAll("RSA PUBLIC KEY", "PUBLIC KEY"),

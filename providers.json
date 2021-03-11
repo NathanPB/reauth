@@ -1,12 +1,12 @@
 [
   {
-    "id": "example",
-    "clientId": "example_id",
-    "clientSecret": "example_secret",
+    "id": "discord",
+    "clientId": "812852515669278751",
+    "clientSecret": "-ibHlBo2uuYokxpVfsCMFXIOcCcRkn59",
     "scopes": ["identify", "email"],
-    "authorizeURL": "https://example.com/api/oauth2/authorize",
-    "tokenURL": "https://example.com/api/oauth2/token",
-    "userDataURL": "https://example.com/api/me",
+    "authorizeURL": "https://discord.com/api/oauth2/authorize",
+    "tokenURL": "https://discord.com/api/oauth2/token",
+    "userDataURL": "https://discord.com/api/v8/users/@me",
     "linkageField": "email",
     "idField": "id",
     "dataAccessRules": {

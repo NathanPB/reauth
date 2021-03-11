@@ -12,7 +12,6 @@ ReAuth will need you to set up some environment variables to work with:
 ```
 BASE_URL=http://localhost:6660
 MONGO_CONN_STRING=mongodb://user:pwd@database.example.com:27017/auth
-APP_AUTHORIZE_URL=http://localhost:300/authorize
 APP_CONSENT_URL=http://localhost:300/authorize/consent
 ```
 
@@ -21,6 +20,22 @@ APP_CONSENT_URL=http://localhost:300/authorize/consent
 
 ``MONGO_CONN_STRING`` - The connection string for the Mongo database
 
-``APP_AUTHORIZE_URL`` - The URL that your login screen will be at. Look at the examples for ~~free candy~~ examples
-
 ``APP_CONSENT_URL`` - The URL that your login screen consent screen will be at. Look at the examples for ~~how to invalidate cache tutorial~~ examples
+
+## Basic Endpoints
+
+The only thing that differs from the oAuth 2.0 protocol ([RFC 6749](https://tools.ietf.org/html/rfc6749)) is that instead of just one ``Authorize`` endpoints, we will have one for each [Authorization Provider](providers.md) you set up.
+
+E.g.
+
+``GET /oauth/authorize/discord``
+
+``GET /oauth/authorize/google``
+
+``GET /oauth/authorize/vis``
+
+You should pass query parameters exactly as a standard oAuth system would expect:
+
+``GET /oauth/authorize/vis?client_id=007a0bae-926f-4c9c-90d6-bbf533281f98&response_type=code&scope=identity&redirect_uri=http://localhost:3000/callback``
+
+After the resource owner completed the process, it will be redirected to your ``redirect_uri`` with the ``code`` to make the code exchange.

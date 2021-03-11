@@ -28,7 +28,6 @@ import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointResponse
 import dev.nathanpb.reauth.oauth.server.ConsentController
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
-import dev.nathanpb.reauth.oauth.server.SessionNoncePool
 import dev.nathanpb.reauth.resource.IdentityController
 import io.ktor.application.*
 import io.ktor.http.*
@@ -37,15 +36,7 @@ import io.ktor.util.date.*
 import java.time.Instant
 import java.util.*
 
-class OAuth2ClientRouteHandler(private val provider: OAuth2Provider) {
-
-    suspend fun handleAuthorize(call: ApplicationCall) {
-        val nonceParam = call.request.queryParameters["nonce"] ?: return call.respond(HttpStatusCode.BadRequest, "missing \"nonce\" parameter")
-        val nonce = SessionNoncePool.retrieve(nonceParam) ?: return call.respond(HttpStatusCode.NotFound, "session not found")
-
-        val session = ClientDealerSessionController.new(provider, nonce.client, nonce)
-        call.respondRedirect(provider.buildAuthorizeUrl(session.id))
-    }
+object OAuth2ClientRouteHandler {
 
     suspend fun handleCallback(call: ApplicationCall) {
         val params = AuthorizeEndpointResponse.receive(call.request.queryParameters)

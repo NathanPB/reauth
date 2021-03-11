@@ -81,8 +81,10 @@ fun main() {
         routing {
 
             route("oauth") {
-                get("authorize") {
-                    OAuth2ServerRouteHandler.handleAuthorize(call)
+                PROVIDERS.forEach { provider ->
+                    get("authorize/${provider.id}") {
+                        OAuth2ServerRouteHandler.handleAuthorize(call, provider)
+                    }
                 }
 
                 get("consent") {
@@ -154,16 +156,8 @@ fun main() {
 
             route("providers") {
                 PROVIDERS.forEach { provider ->
-                    OAuth2ClientRouteHandler(provider).apply {
-                        route(provider.id) {
-                            get("authorize") {
-                                handleAuthorize(call)
-                            }
-
-                            get("callback") {
-                                handleCallback(call)
-                            }
-                        }
+                    get("${provider.id}/callback") {
+                        OAuth2ClientRouteHandler.handleCallback(call)
                     }
                 }
             }

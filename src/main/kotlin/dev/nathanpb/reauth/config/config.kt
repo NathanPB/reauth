@@ -42,7 +42,6 @@ val SCOPES_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./scopes.j
 val BASE_URL = System.getenv("BASE_URL") ?: error("BASE_URL is not set")
 val ISSUER = System.getenv("ISSUER") ?: "reauth"
 
-val APP_AUTHORIZE_URL = System.getenv("APP_AUTHORIZE_URL") ?: error("APP_AUTHORIZE_URL is not set")
 val APP_CONSENT_URL = System.getenv("APP_CONSENT_URL") ?: error("APP_CONSENT_URI is not set")
 
 val RSA_KEYPAIR = readKeyPair(DYNAMIC_DIR)

@@ -19,8 +19,9 @@
 
 package dev.nathanpb.reauth.oauth.server
 
-import dev.nathanpb.reauth.config.APP_AUTHORIZE_URL
+import dev.nathanpb.reauth.config.OAuth2Provider
 import dev.nathanpb.reauth.config.SCOPES
+import dev.nathanpb.reauth.oauth.client.ClientDealerSessionController
 import dev.nathanpb.reauth.oauth.client.DealerSession
 import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointRequest
 import dev.nathanpb.reauth.oauth.model.TokenEndpointRequest
@@ -54,7 +55,7 @@ object OAuth2ServerRouteHandler {
         call.respondRedirect(redirectURL.buildString(), false)
     }
 
-    suspend fun handleAuthorize(call: ApplicationCall) {
+    suspend fun handleAuthorize(call: ApplicationCall, provider: OAuth2Provider) {
         val params = try {
             AuthorizeEndpointRequest.receive(call.request.queryParameters).apply {
                 if (responseType != "code") {
@@ -79,12 +80,8 @@ object OAuth2ServerRouteHandler {
             return call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
         }
 
-        call.respondRedirect(
-            URLBuilder(APP_AUTHORIZE_URL).apply {
-                parameters["nonce"] = SessionNoncePool.put(params)
-            }.buildString(),
-            false
-        )
+        val session = ClientDealerSessionController.new(provider, params.client, params)
+        call.respondRedirect(provider.buildAuthorizeUrl(session.id))
     }
 
     suspend fun handleToken(call: ApplicationCall) {
