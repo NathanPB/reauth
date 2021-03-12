@@ -19,7 +19,7 @@
 
 package dev.nathanpb.reauth.oauth.model
 
-import dev.nathanpb.reauth.epochSeconds
+import dev.nathanpb.reauth.utils.epochSeconds
 import dev.nathanpb.reauth.oauth.server.ReauthAccessToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -23,9 +23,9 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import dev.nathanpb.reauth.config.ISSUER
 import dev.nathanpb.reauth.config.RSA_KEYPAIR
-import dev.nathanpb.reauth.randomHex
-import dev.nathanpb.reauth.toDate
-import dev.nathanpb.reauth.toLocalDateTime
+import dev.nathanpb.reauth.utils.randomHex
+import dev.nathanpb.reauth.utils.toDate
+import dev.nathanpb.reauth.utils.toLocalDateTime
 import java.time.LocalDateTime
 
 data class ReauthAccessToken (

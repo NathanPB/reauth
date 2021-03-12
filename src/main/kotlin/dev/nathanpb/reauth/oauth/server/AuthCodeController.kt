@@ -20,7 +20,7 @@
 package dev.nathanpb.reauth.oauth.server
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import dev.nathanpb.reauth.randomHex
+import dev.nathanpb.reauth.utils.randomHex
 import dev.nathanpb.reauth.resource.ClientController
 import java.util.concurrent.TimeUnit
 

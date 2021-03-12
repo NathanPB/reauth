@@ -17,7 +17,7 @@
  * along with ReAuth.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth
+package dev.nathanpb.reauth.utils
 
 import com.mongodb.internal.HexUtils
 import java.security.MessageDigest

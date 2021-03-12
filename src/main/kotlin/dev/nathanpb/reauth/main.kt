@@ -25,6 +25,7 @@ import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
 import dev.nathanpb.reauth.oauth.server.ReauthAccessToken
 import dev.nathanpb.reauth.resource.IdentityController
+import dev.nathanpb.reauth.utils.md5Hex
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*

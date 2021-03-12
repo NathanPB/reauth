@@ -21,7 +21,7 @@ package dev.nathanpb.reauth.oauth.server
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.nathanpb.reauth.oauth.client.DealerSession
-import dev.nathanpb.reauth.randomHex
+import dev.nathanpb.reauth.utils.randomHex
 import java.util.concurrent.TimeUnit
 
 private val requireConsentPool = Caffeine.newBuilder()

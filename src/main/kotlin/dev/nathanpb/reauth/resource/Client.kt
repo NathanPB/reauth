@@ -20,7 +20,7 @@
 package dev.nathanpb.reauth.resource
 
 import dev.nathanpb.reauth.mongoDb
-import dev.nathanpb.reauth.randomHex
+import dev.nathanpb.reauth.utils.randomHex
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

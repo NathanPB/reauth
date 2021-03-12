@@ -21,7 +21,7 @@ package dev.nathanpb.reauth.resource
 
 import com.mongodb.client.model.Filters
 import dev.nathanpb.reauth.config.OAuth2Provider
-import dev.nathanpb.reauth.md5Hex
+import dev.nathanpb.reauth.utils.md5Hex
 import org.bson.Document
 import org.litote.kmongo.*
 
