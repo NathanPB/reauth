@@ -30,7 +30,8 @@ class DealerSession internal constructor(
     val id: String,
     val dealer: OAuth2ClientDealer,
     val client: Client,
-    val initialRequest: AuthorizeEndpointRequest
+    val initialRequest: AuthorizeEndpointRequest,
+    val origin: String
 )
 
 object ClientDealerSessionController {
@@ -38,9 +39,9 @@ object ClientDealerSessionController {
         .expireAfterWrite(1, TimeUnit.HOURS)
         .build<String, DealerSession>()
 
-    fun new(provider: OAuth2Provider, client: Client, request: AuthorizeEndpointRequest): DealerSession {
+    fun new(provider: OAuth2Provider, client: Client, request: AuthorizeEndpointRequest, origin: String): DealerSession {
         val sessionId = randomHex(4)
-        return DealerSession(sessionId, OAuth2ClientDealer(provider), client, request).also {
+        return DealerSession(sessionId, OAuth2ClientDealer(provider, origin), client, request, origin).also {
             sessionPool.put(sessionId, it)
         }
     }

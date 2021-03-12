@@ -49,7 +49,9 @@ object OAuth2ClientRouteHandler {
             val session = ClientDealerSessionController.find(params.state) ?: return call.respond(HttpStatusCode.UnprocessableEntity, "dealer not found. Maybe the time is out?")
             ClientDealerSessionController.finalize(session.id)
 
-            session.dealer.receiveRedirect(params)
+            params.verify(session.dealer.provider)
+            session.dealer.receiveCode(params.code!!)
+
             val uid = IdentityController.saveIdentity(
                 session.dealer.provider,
                 session.dealer.getUserData()

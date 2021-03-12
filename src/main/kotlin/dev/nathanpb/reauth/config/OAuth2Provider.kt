@@ -19,6 +19,7 @@
 
 package dev.nathanpb.reauth.config
 
+import dev.nathanpb.reauth.oauth.client.DealerSession
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 
@@ -43,13 +44,13 @@ data class OAuth2Provider (
         }
     }
 
-    fun buildAuthorizeUrl(sessionId: String): String {
+    fun buildAuthorizeUrl(session: DealerSession): String {
         return URLBuilder(authorizeURL).apply {
             parameters["response_type"] = "code"
             parameters["client_id"] = clientId
-            parameters["redirect_uri"] = URLBuilder(BASE_URL).path("providers/$id/callback").buildString()
+            parameters["redirect_uri"] = URLBuilder(session.origin).path("providers/$id/callback").buildString()
             parameters["scope"] = scopes.joinToString(" ")
-            parameters["state"] = sessionId
+            parameters["state"] = session.id
         }.buildString()
     }
 }

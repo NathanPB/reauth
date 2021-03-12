@@ -27,6 +27,7 @@ import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointRequest
 import dev.nathanpb.reauth.oauth.model.TokenEndpointRequest
 import dev.nathanpb.reauth.oauth.model.TokenEndpointResponse
 import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -80,8 +81,23 @@ object OAuth2ServerRouteHandler {
             return call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
         }
 
-        val session = ClientDealerSessionController.new(provider, params.client, params)
-        call.respondRedirect(provider.buildAuthorizeUrl(session.id))
+        val origin = URLBuilder().apply {
+            protocol = when (call.request.origin.scheme) {
+                "http" -> URLProtocol.HTTP
+                "https" -> URLProtocol.HTTPS
+                else -> error("protocol ${call.request.origin.scheme} not supported")
+            }
+            host = call.request.host()
+            port = call.request.port()
+        }
+
+        val session = ClientDealerSessionController.new(
+            provider,
+            params.client,
+            params,
+            origin.buildString()
+        )
+        call.respondRedirect(provider.buildAuthorizeUrl(session))
     }
 
     suspend fun handleToken(call: ApplicationCall) {
