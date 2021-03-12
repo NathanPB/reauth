@@ -14,7 +14,7 @@ The ``providers.json`` file should be a JSON array of JSON objects with the foll
 {
   "id": "example",
   "clientId": "foobar",
-  "clientSecret": "foo123124172389bar",
+  "clientSecret": "${DISCORD_CLIENT_SECRET}",
   "scopes": "identify email",
   "authorizeURL": "https://example.com/oauth2/authorize",
   "tokenURL": "https://example.com/oauth2/token",
@@ -41,3 +41,5 @@ The ``providers.json`` file should be a JSON array of JSON objects with the foll
 | linkageField    | string             | The data linkage field, described in [Linking Accounts](account-linking.md#linking-accounts). |
 | idField         | string             | The user id field, described in [User ID Generation](account-linking.md#user-id-generation). |
 | dataAccessRules | Access Rule Object | The access rules to map the data that each scope should access (TODO not properly documented yet)
+
+In the fields ``clientId`` and ``clientSecret``, you can use the syntax ``${VARIABLE_NAME}`` to access an environment variable. This is particularly useful for client secrets.

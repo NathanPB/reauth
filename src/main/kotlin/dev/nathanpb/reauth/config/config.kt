@@ -19,6 +19,7 @@
 
 package dev.nathanpb.reauth.config
 
+import dev.nathanpb.reauth.utils.replaceEnvVars
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import java.nio.file.Path
@@ -50,7 +51,12 @@ val RSA_KEYPAIR = readKeyPair(DYNAMIC_DIR)
 val SCOPES = Json.decodeFromString<Set<String>>(SCOPES_FILE.readText())
 
 @OptIn(ExperimentalPathApi::class)
-val PROVIDERS = Json.decodeFromString<List<OAuth2Provider>>(PROVIDERS_FILE.readText())
+val PROVIDERS = Json.decodeFromString<List<OAuth2Provider>>(PROVIDERS_FILE.readText()).map {
+    it.copy(
+        clientId = it.clientId.replaceEnvVars(),
+        clientSecret = it.clientSecret.replaceEnvVars()
+    )
+}
 
 @OptIn(ExperimentalPathApi::class)
 val IDENTITY_MAPPER = IdentityMapper(Json.decodeFromString(IDENTITY_FILE.readText()))
