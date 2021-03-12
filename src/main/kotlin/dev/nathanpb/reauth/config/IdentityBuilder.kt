@@ -27,8 +27,8 @@ import org.graalvm.polyglot.Context
 class IdentityMapper(private val schema: Map<String, String>) : Map<String, String> {
 
     init {
-        if (containsKey("uid") || containsKey("data")) {
-            error("\"data\" and \"uid\" are reserved keywords of the identity. Please check your identity builder file")
+        if (containsKey("uid")) {
+            error("\"uid\" is a keyword. Please check your identity builder file")
         }
     }
 
@@ -63,9 +63,7 @@ class IdentityMapper(private val schema: Map<String, String>) : Map<String, Stri
         return schema.entries.fold(Document()) { acc, (key, expression) ->
             val result = engine.eval("js", expression).asString()
             if (result != null) acc.append(key, result) else acc
-        }
-            .append("uid", builders.first().identity.uid)
-            .append("data", builders.map { it.data })
+        }.append("uid", builders.first().identity.uid)
     }
 }
 
