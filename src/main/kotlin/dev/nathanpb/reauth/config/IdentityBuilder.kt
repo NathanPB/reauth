@@ -64,10 +64,12 @@ class IdentityMapper(private val schema: Map<String, String>) : Map<String, Stri
             val result = engine.eval("js", expression).asString()
             if (result != null) acc.append(key, result) else acc
         }
+            .append("uid", builders.first().identity.uid)
+            .append("data", builders.map { it.data })
     }
 }
 
-class IdentityBuilder(private val identity: Identity) {
+class IdentityBuilder(val identity: Identity) {
 
     val provider = PROVIDERS.firstOrNull { it.id == identity.provider }
 
