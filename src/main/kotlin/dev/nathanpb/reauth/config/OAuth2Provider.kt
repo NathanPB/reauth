@@ -28,7 +28,7 @@ data class OAuth2Provider (
     val id: String,
     val clientId: String,
     val clientSecret: String,
-    val scopes: Set<String>,
+    val scope: String,
     val authorizeURL: String,
     val userDataURL: String,
     val tokenURL: String,
@@ -49,7 +49,7 @@ data class OAuth2Provider (
             parameters["response_type"] = "code"
             parameters["client_id"] = clientId
             parameters["redirect_uri"] = URLBuilder(session.origin).path("providers/$id/callback").buildString()
-            parameters["scope"] = scopes.joinToString(" ")
+            parameters["scope"] = scope
             parameters["state"] = session.id
         }.buildString()
     }

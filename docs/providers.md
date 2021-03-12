@@ -15,7 +15,7 @@ The ``providers.json`` file should be a JSON array of JSON objects with the foll
   "id": "example",
   "clientId": "foobar",
   "clientSecret": "foo123124172389bar",
-  "scopes": ["identify", "email"],
+  "scopes": "identify email",
   "authorizeURL": "https://example.com/oauth2/authorize",
   "tokenURL": "https://example.com/oauth2/token",
   "userDataURL": "https://example.com/api/user/me",
@@ -34,7 +34,7 @@ The ``providers.json`` file should be a JSON array of JSON objects with the foll
 | id              | string             | The namespace which this Auth Provider will be using |
 | clientId        | string             | The client ID of the Auth Provider, as defined in [RFC 6478 A.1](https://tools.ietf.org/html/rfc6749#appendix-A.1) |
 | clientSecret    | string             | The client secret of the Auth Provider, as defined in [RFC 6478 A.2](https://tools.ietf.org/html/rfc6749#appendix-A.2) |
-| scopes          | [string]           | The scopes that the resource owner will be asked for when logging in with this Auth Provider, as defined in [RFC 6478 A.4](https://tools.ietf.org/html/rfc6749#appendix-A.4) |
+| scope           | string             | The scopes that the resource owner will be asked for when logging in with this Auth Provider, as defined in [RFC 6478 A.4](https://tools.ietf.org/html/rfc6749#appendix-A.4) |
 | authorizeURL    | string (URI valid) | The Authorize Endpoint of this Auth Provider, as defined in [RFC 6478 4.1.1](https://tools.ietf.org/html/rfc6749#section-4.1.1) |
 | tokenURL        | string (URI valid) | The Token Endpoint of this Auth Provider, as defined in [RFC 6478 4.1.3](https://tools.ietf.org/html/rfc6749#section-4.1.3) |
 | userDataURL     | string (URI valid) | The endpoint which reAuth will expect to retrieve the resource owner information from |
