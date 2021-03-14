@@ -19,7 +19,7 @@
 
 package dev.nathanpb.reauth.oauth.model
 
-import dev.nathanpb.reauth.resource.ClientController
+import dev.nathanpb.reauth.resource.Client
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.security.InvalidParameterException
@@ -46,7 +46,7 @@ data class AuthorizeEndpointRequest(
 
     val client by lazy {
         runBlocking {
-            ClientController.findClientById(clientId) ?: error("Client $clientId could not be found")
+            Client.collection.findOneById(clientId) ?: error("Client $clientId could not be found")
         }
     }
 

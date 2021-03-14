@@ -20,8 +20,8 @@
 package dev.nathanpb.reauth.oauth.server
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import dev.nathanpb.reauth.resource.Client
 import dev.nathanpb.reauth.utils.randomHex
-import dev.nathanpb.reauth.resource.ClientController
 import java.util.concurrent.TimeUnit
 
 // TODO expire a code if requested two times
@@ -40,7 +40,7 @@ object AuthCodeController {
 
     suspend fun exchangeCode(code: String, clientSecret: String): ReauthAccessToken? {
         val token = codes.getIfPresent(code) ?: return null
-        val client = ClientController.findClientById(token.clientId) ?: return null
+        val client = Client.collection.findOneById(token.clientId) ?: return null
 
         if (client.clientSecret == clientSecret) {
             codes.invalidate(code)
