@@ -21,6 +21,7 @@ package dev.nathanpb.reauth
 
 import com.mongodb.internal.HexUtils
 import dev.nathanpb.reauth.config.*
+import dev.nathanpb.reauth.management.installManagement
 import dev.nathanpb.reauth.oauth.client.OAuth2ClientRouteHandler
 import dev.nathanpb.reauth.oauth.server.OAuth2ServerRouteHandler
 import dev.nathanpb.reauth.oauth.server.ReauthAccessToken
@@ -76,6 +77,8 @@ fun main() {
         install(ContentNegotiation) {
             json()
         }
+
+        installManagement()
 
         routing {
 

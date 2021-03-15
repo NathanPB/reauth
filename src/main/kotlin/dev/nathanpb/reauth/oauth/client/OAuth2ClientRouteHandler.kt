@@ -68,7 +68,7 @@ object OAuth2ClientRouteHandler {
                         .withAudience(uid)
 
                         .withClaim("client_display_name", session.client.displayName)
-                        .withClaim("client_id", session.client.clientId.toString())
+                        .withClaim("client_id", session.client.clientId)
                         .withClaim("scope", session.initialRequest.scope)
                         .sign(Algorithm.RSA256(RSA_KEYPAIR.public, RSA_KEYPAIR.private))
                 }

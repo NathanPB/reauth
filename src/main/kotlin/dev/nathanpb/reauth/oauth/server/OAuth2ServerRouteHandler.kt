@@ -40,7 +40,7 @@ object OAuth2ServerRouteHandler {
     suspend fun redirectToCallback(uid: String, session: DealerSession, call: ApplicationCall) {
         val token = ReauthAccessToken(
             uid = uid,
-            clientId = session.client.clientId.toString(),
+            clientId = session.client.clientId,
             scopes =  session.initialRequest.scope.orEmpty().split(" ").toSet(),
             expiresAt = LocalDateTime.now().plusDays(12) // TODO maybe "unhardcode" this?
         )

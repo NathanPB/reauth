@@ -17,23 +17,13 @@
  * along with ReAuth.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.resource
+package dev.nathanpb.reauth.management
 
-import dev.nathanpb.reauth.mongoDb
-import dev.nathanpb.reauth.utils.randomHex
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.*
 
 @Serializable
-data class Client (
-    @SerialName("_id") val clientId: String = UUID.randomUUID().toString(),
-    val clientSecret: String = randomHex(128),
+data class ManagerAccount(
+    val id: String,
     val displayName: String,
-    val redirectUris: List<String> = emptyList(),
-    val skipConsent: Boolean = false, // TODO make skipConsent work
-) {
-    companion object {
-        val collection = mongoDb.getCollection<Client>()
-    }
-}
+    val token: String
+)

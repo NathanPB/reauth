@@ -19,6 +19,7 @@
 
 package dev.nathanpb.reauth.config
 
+import dev.nathanpb.reauth.management.ManagerAccount
 import dev.nathanpb.reauth.utils.replaceEnvVars
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
@@ -40,6 +41,7 @@ val DYNAMIC_DIR = Paths.get(System.getenv("DYNAMIC_DIR") ?: "./.dynamic").apply 
 val PORT = System.getenv("PORT")?.toIntOrNull() ?: 6660
 val PROVIDERS_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./providers.json")
 val SCOPES_FILE: Path = Paths.get(System.getenv("PROVIDERS_FILE") ?: "./scopes.json")
+val MANAGERS_FILE: Path = Paths.get(System.getenv("MANAGERS_FILE") ?: "./managers.json")
 val IDENTITY_FILE: Path = Paths.get(System.getenv("IDENTITY_FILE") ?: "./identity.json")
 val ISSUER = System.getenv("ISSUER") ?: "reauth"
 
@@ -60,3 +62,32 @@ val PROVIDERS = Json.decodeFromString<List<OAuth2Provider>>(PROVIDERS_FILE.readT
 
 @OptIn(ExperimentalPathApi::class)
 val IDENTITY_MAPPER = IdentityMapper(Json.decodeFromString(IDENTITY_FILE.readText()))
+
+@OptIn(ExperimentalPathApi::class)
+val MANAGERS = Json.decodeFromString<List<ManagerAccount>>(MANAGERS_FILE.readText())
+    .map {
+        it.copy(
+            displayName = it.displayName.replaceEnvVars(),
+            token = it.token.replaceEnvVars()
+        )
+    }.apply {
+        if (distinctBy { it.id }.size != size) {
+            error("managers account have duplicate IDs")
+        }
+
+        forEach {
+            if (!it.id.matches("[0-9a-z-]+".toRegex())) {
+                error("manager ${it.id} does not matches required identifier rules")
+            }
+
+            if (it.displayName.isBlank()) {
+                error("manager ${it.id} display name is empty")
+            }
+
+            if (it.token.length < 64) {
+                error("manager ${it.id} token does not have the minimum size of 64 characters")
+            }
+        }
+
+        println("Loaded $size manager accounts. ${joinToString { it.id }}")
+    }

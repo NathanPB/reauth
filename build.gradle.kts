@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.nathanpb"
-version = "0.3.4"
+version = "0.4.0"
 
 repositories {
     mavenCentral()
@@ -25,6 +25,8 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.0.0")
     implementation("com.auth0:java-jwt:3.14.0")
     implementation("org.graalvm.js:js:21.0.0.2")
+    implementation("com.apurebase:kgraphql:0.17.2")
+    implementation("com.apurebase:kgraphql-ktor:0.17.2")
 
     testImplementation("junit", "junit", "4.12")
 }

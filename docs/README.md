@@ -9,5 +9,6 @@ Some terms used in this documentation are inherited from the oAuth 2.0 specifica
 - [Getting Started](getting-started.md)
 - [Account Linking](account-linking.md)
 - [Identity Mapper](identity-mapper.md)
+- [Management API](management.md)
 - [Scopes](scopes.md)
 - [Providers](providers.md)
