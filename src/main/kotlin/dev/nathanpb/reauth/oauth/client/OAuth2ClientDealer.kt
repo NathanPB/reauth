@@ -42,7 +42,7 @@ class OAuth2ClientDealer(val provider: OAuth2Provider, private val origin: Strin
                 "client_secret" to provider.clientSecret,
                 "grant_type" to "authorization_code",
                 "code" to code,
-            "redirect_uri" to URLBuilder(origin).path("providers/${provider.id}/callback").buildString()
+                "redirect_uri" to provider.buildRedirectUrl(origin)
             )
         ).awaitObjectResult<TokenEndpointResponse>(kotlinxDeserializerOf()).get().also {
             token = it
