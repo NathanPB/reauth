@@ -21,7 +21,7 @@ package dev.nathanpb.reauth.management
 
 import com.apurebase.kgraphql.Context
 import com.apurebase.kgraphql.GraphQL
-import dev.nathanpb.reauth.config.MANAGERS
+import dev.nathanpb.reauth.ReauthServer
 import dev.nathanpb.reauth.management.data.ClientInput
 import dev.nathanpb.reauth.resource.Client
 import io.ktor.application.*
@@ -36,7 +36,7 @@ import java.net.URI
 
 private val AUTHORIZATION_HEADER_REGEX = "^(?i)Bearer (.*)(?-i)".toRegex()
 
-fun Application.installManagement() {
+fun Application.installManagement(reauth: ReauthServer) {
     install(GraphQL) {
         useDefaultPrettyPrinter = true
         playground = System.getProperty("gql-dev") == "true"
@@ -52,7 +52,7 @@ fun Application.installManagement() {
                     return@runBlocking
                 }
 
-                val account = MANAGERS.firstOrNull { it.token == token } ?: return@runBlocking
+                val account = reauth.config.managers.firstOrNull { it.token == token } ?: return@runBlocking
 
                 +account
             }

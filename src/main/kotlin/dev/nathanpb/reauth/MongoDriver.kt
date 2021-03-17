@@ -17,24 +17,21 @@
  * along with ReAuth.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.resource
+package dev.nathanpb.reauth
 
-import dev.nathanpb.reauth.reauth
-import dev.nathanpb.reauth.utils.randomHex
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import java.util.*
+import dev.nathanpb.reauth.config.ReauthEnvironment
+import org.litote.kmongo.coroutine.CoroutineClient
+import org.litote.kmongo.coroutine.CoroutineDatabase
+import org.litote.kmongo.coroutine.coroutine
+import org.litote.kmongo.reactivestreams.KMongo
 
-@Serializable
-data class Client (
-    @SerialName("_id") val clientId: String = UUID.randomUUID().toString(),
-    val clientSecret: String = randomHex(128),
-    val displayName: String,
-    val redirectUris: List<String> = emptyList(),
-    val skipConsent: Boolean = false,
-) {
-    companion object {
-        // TODO modularize this
-        val collection = reauth.mongo.db.getCollection<Client>()
+class MongoDriver {
+
+    lateinit var client: CoroutineClient
+    lateinit var db: CoroutineDatabase
+
+    fun initialize(env: ReauthEnvironment) {
+        client = KMongo.createClient(env.mongoConnString).coroutine
+        db = client.getDatabase(env.mongoDbName)
     }
 }

@@ -11,12 +11,12 @@ ReAuth will need you to set up some environment variables to work with:
 
 ```
 MONGO_CONN_STRING=mongodb://user:pwd@database.example.com:27017/auth
-APP_CONSENT_URL=http://localhost:300/authorize/consent
+APP_CONSENT_URI=http://localhost:300/authorize/consent
 ```
 
 ``MONGO_CONN_STRING`` - The connection string for the Mongo database
 
-``APP_CONSENT_URL`` - The URL that your login screen consent screen will be at. Look at the examples for ~~how to invalidate cache tutorial~~ examples
+``APP_CONSENT_URI`` - The URL that your login screen consent screen will be at. Look at the examples for ~~how to invalidate cache tutorial~~ examples
 
 ## Basic Endpoints
 

@@ -37,13 +37,6 @@ data class OAuth2Provider (
     val dataAccessRules: HashMap<String, Set<String>>
 ) {
 
-    init {
-        val invalidScopes = dataAccessRules.values.flatten().filterNot { it in SCOPES }.toSet()
-        if (invalidScopes.isNotEmpty()) {
-            error("Invalid scopes found. Did you forget to add it to the $SCOPES_FILE file? Scopes: ${invalidScopes.joinToString(", ")}")
-        }
-    }
-
     fun buildRedirectUrl(originUrl: String): String {
         return URLBuilder(originUrl).apply {
             path(listOf(encodedPath.takeLast(encodedPath.length-1), "providers/$id/callback").filterNot { it.isBlank() })

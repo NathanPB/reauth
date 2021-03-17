@@ -17,24 +17,19 @@
  * along with ReAuth.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.nathanpb.reauth.resource
+package dev.nathanpb.reauth.config
 
-import dev.nathanpb.reauth.reauth
-import dev.nathanpb.reauth.utils.randomHex
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import java.util.*
+import java.nio.file.Path
 
-@Serializable
-data class Client (
-    @SerialName("_id") val clientId: String = UUID.randomUUID().toString(),
-    val clientSecret: String = randomHex(128),
-    val displayName: String,
-    val redirectUris: List<String> = emptyList(),
-    val skipConsent: Boolean = false,
-) {
-    companion object {
-        // TODO modularize this
-        val collection = reauth.mongo.db.getCollection<Client>()
-    }
-}
+data class ReauthEnvironment(
+    val port: Int,
+    val issuer: String,
+    val appConsentUri: String,
+    val mongoConnString: String,
+    val mongoDbName: String,
+    val dynamicDir: Path,
+    val providersFile: Path,
+    val scopesFile: Path,
+    val managersFile: Path,
+    val identityFile: Path
+)

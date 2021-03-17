@@ -21,8 +21,7 @@ package dev.nathanpb.reauth.oauth.server
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import dev.nathanpb.reauth.config.ISSUER
-import dev.nathanpb.reauth.config.RSA_KEYPAIR
+import dev.nathanpb.reauth.reauth
 import dev.nathanpb.reauth.utils.randomHex
 import dev.nathanpb.reauth.utils.toDate
 import dev.nathanpb.reauth.utils.toLocalDateTime
@@ -37,8 +36,8 @@ data class ReauthAccessToken (
 ) {
     companion object {
         fun fromToken(token: String): ReauthAccessToken {
-            return JWT.require(Algorithm.RSA256(RSA_KEYPAIR.public, RSA_KEYPAIR.private))
-                .withIssuer(ISSUER)
+            return JWT.require(Algorithm.RSA256(reauth.keypair.public, reauth.keypair.private))
+                .withIssuer(reauth.env.issuer)
                 .withSubject("access_token")
                 .withClaimPresence("client_id")
                 .withClaimPresence("uid")
@@ -58,13 +57,13 @@ data class ReauthAccessToken (
 
     val jwtString: String by lazy {
         JWT.create()
-            .withIssuer(ISSUER)
+            .withIssuer(reauth.env.issuer)
             .withSubject("access_token")
             .withJWTId(tokenId)
             .withExpiresAt(expiresAt.toDate())
             .withClaim("uid", uid)
             .withClaim("client_id", clientId)
             .withArrayClaim("scope", scopes.toTypedArray())
-            .sign(Algorithm.RSA256(RSA_KEYPAIR.public, RSA_KEYPAIR.private))
+            .sign(Algorithm.RSA256(reauth.keypair.public, reauth.keypair.private))
     }
 }

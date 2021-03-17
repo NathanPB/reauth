@@ -20,8 +20,7 @@
 package dev.nathanpb.reauth.resource
 
 import com.mongodb.client.model.Updates
-import dev.nathanpb.reauth.config.PROVIDERS
-import dev.nathanpb.reauth.mongoDb
+import dev.nathanpb.reauth.reauth
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Contextual
@@ -40,14 +39,16 @@ data class Identity(
     val provider: String
 ) {
     companion object {
-        val collection = mongoDb.getCollection<Identity>()
+        // TODO modularize this
+        val collection = reauth.mongo.db.getCollection<Identity>()
     }
 
 
     var data: BsonDocument?
         get() {
             return runBlocking {
-                mongoDb.database.getCollection("identity")
+                // TODO modularize this
+                reauth.mongo.db.database.getCollection("identity")
                     .find(Identity::id eq id)
                     .awaitFirst()
                     .get("data", Document::class.java)

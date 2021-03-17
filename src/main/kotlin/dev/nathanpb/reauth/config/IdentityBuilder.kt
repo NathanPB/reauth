@@ -48,10 +48,10 @@ class IdentityMapper(private val schema: Map<String, String>) : Map<String, Stri
 
     override fun isEmpty() = schema.isEmpty()
 
-    fun reduce(builders: List<IdentityBuilder>): Document {
+    fun reduce(builders: List<IdentityBuilder>, providers: List<OAuth2Provider>): Document {
         val engine = Context.newBuilder().build()
 
-        val data = PROVIDERS.joinToString("\n") { provider ->
+        val data = providers.joinToString("\n") { provider ->
             val builder = builders.firstOrNull { it.provider == provider }
             "const ${provider.id} = ${builder?.data?.toJson() ?: "null"};"
         }
@@ -65,9 +65,9 @@ class IdentityMapper(private val schema: Map<String, String>) : Map<String, Stri
     }
 }
 
-class IdentityBuilder(val identity: Identity) {
+class IdentityBuilder(val identity: Identity, providers: List<OAuth2Provider>) {
 
-    val provider = PROVIDERS.firstOrNull { it.id == identity.provider }
+    val provider = providers.firstOrNull { it.id == identity.provider }
 
     var data: Document = identity.data!!.toDocument()
         private set

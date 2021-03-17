@@ -20,10 +20,7 @@
 package dev.nathanpb.reauth.oauth.client
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import dev.nathanpb.reauth.config.APP_CONSENT_URL
-import dev.nathanpb.reauth.config.ISSUER
-import dev.nathanpb.reauth.config.OAuth2Provider
-import dev.nathanpb.reauth.config.RSA_KEYPAIR
+import dev.nathanpb.reauth.ReauthServer
 import dev.nathanpb.reauth.oauth.OAuth2AuthorizeException
 import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointResponse
 import dev.nathanpb.reauth.oauth.server.ConsentController
@@ -38,7 +35,7 @@ import java.util.*
 
 object OAuth2ClientRouteHandler {
 
-    suspend fun handleCallback(call: ApplicationCall) {
+    suspend fun handleCallback(call: ApplicationCall, server: ReauthServer) {
         val params = AuthorizeEndpointResponse.receive(call.request.queryParameters)
 
         try {
@@ -58,9 +55,9 @@ object OAuth2ClientRouteHandler {
             ).uid
 
             if (!session.client.skipConsent) {
-                val redirectURL = URLBuilder(APP_CONSENT_URL).apply {
+                val redirectURL = URLBuilder(server.env.appConsentUri).apply {
                     parameters["token"] = JWT.create()
-                        .withIssuer(ISSUER)
+                        .withIssuer(server.env.issuer)
                         .withJWTId(ConsentController.createConsentWaiter(uid, session))
                         .withExpiresAt(Instant.now().plusSeconds(600).toGMTDate().toJvmDate())
                         .withSubject("resource_owner_consent")
@@ -70,7 +67,7 @@ object OAuth2ClientRouteHandler {
                         .withClaim("client_display_name", session.client.displayName)
                         .withClaim("client_id", session.client.clientId)
                         .withClaim("scope", session.initialRequest.scope)
-                        .sign(Algorithm.RSA256(RSA_KEYPAIR.public, RSA_KEYPAIR.private))
+                        .sign(Algorithm.RSA256(server.keypair.public, server.keypair.private))
                 }
 
                 return call.respondRedirect(redirectURL.buildString(), false)

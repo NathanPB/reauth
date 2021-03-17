@@ -19,8 +19,8 @@
 
 package dev.nathanpb.reauth.oauth.server
 
+import dev.nathanpb.reauth.ReauthServer
 import dev.nathanpb.reauth.config.OAuth2Provider
-import dev.nathanpb.reauth.config.SCOPES
 import dev.nathanpb.reauth.oauth.client.ClientDealerSessionController
 import dev.nathanpb.reauth.oauth.client.DealerSession
 import dev.nathanpb.reauth.oauth.model.AuthorizeEndpointRequest
@@ -57,7 +57,7 @@ object OAuth2ServerRouteHandler {
         call.respondRedirect(redirectURL.buildString(), false)
     }
 
-    suspend fun handleAuthorize(call: ApplicationCall, provider: OAuth2Provider) {
+    suspend fun handleAuthorize(call: ApplicationCall, provider: OAuth2Provider, reauth: ReauthServer) {
         val params = try {
             AuthorizeEndpointRequest.receive(call.request.queryParameters).apply {
                 if (responseType != "code") {
@@ -69,7 +69,7 @@ object OAuth2ServerRouteHandler {
                 }
 
                 val scopes = scope?.split(" ").orEmpty().map(String::toLowerCase).toSet()
-                if (scopes.isEmpty() || scopes.any { it !in SCOPES }) {
+                if (scopes.isEmpty() || scopes.any { it !in reauth.config.scopes }) {
                     return call.respond(HttpStatusCode.BadRequest, "invalid or missing \"scope\"")
                 }
 
