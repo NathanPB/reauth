@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.nathanpb"
-version = "0.4.0"
+version = "0.4.1"
 
 repositories {
     mavenCentral()
@@ -27,6 +27,7 @@ dependencies {
     implementation("org.graalvm.js:js:21.0.0.2")
     implementation("com.apurebase:kgraphql:0.17.2")
     implementation("com.apurebase:kgraphql-ktor:0.17.2")
+    implementation("io.projectreactor:reactor-core:3.4.4")
 
     testImplementation("junit", "junit", "4.12")
 }
