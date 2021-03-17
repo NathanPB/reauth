@@ -43,6 +43,6 @@ tasks.withType<Jar> {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
     kotlinOptions {
-        jvmTarget = "14"
+        jvmTarget = "1.8"
     }
 }
