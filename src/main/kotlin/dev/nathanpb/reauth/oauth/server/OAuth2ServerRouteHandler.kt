@@ -32,6 +32,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import kotlinx.serialization.SerializationException
+import java.net.URI
 import java.security.InvalidParameterException
 import java.time.LocalDateTime
 
@@ -81,21 +82,31 @@ object OAuth2ServerRouteHandler {
             return call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
         }
 
-        val origin = URLBuilder().apply {
-            protocol = when (call.request.origin.scheme) {
-                "http" -> URLProtocol.HTTP
-                "https" -> URLProtocol.HTTPS
-                else -> error("protocol ${call.request.origin.scheme} not supported")
-            }
-            host = call.request.host()
-            port = call.request.port()
+        val origin = try {
+            call.request.header("Reauth-Origin")?.let { origin ->
+                val url = URI.create(origin)
+                if (url.scheme != "http" && url.scheme != "https") {
+                    throw IllegalArgumentException("Only http(s) protocols are supported")
+                }
+                url.toString()
+            } ?: URLBuilder().apply {
+                protocol = when (call.request.origin.scheme) {
+                    "http" -> URLProtocol.HTTP
+                    "https" -> URLProtocol.HTTPS
+                    else -> throw IllegalArgumentException("Only http(s) protocols are supported")
+                }
+                host = call.request.host()
+                port = call.request.port()
+            }.buildString()
+        } catch(e: IllegalArgumentException) {
+            return call.respond(HttpStatusCode.BadRequest, e.message.orEmpty())
         }
 
         val session = ClientDealerSessionController.new(
             provider,
             params.client,
             params,
-            origin.buildString()
+            origin
         )
         call.respondRedirect(provider.buildAuthorizeUrl(session))
     }

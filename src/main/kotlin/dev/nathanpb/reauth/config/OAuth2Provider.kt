@@ -45,10 +45,14 @@ data class OAuth2Provider (
     }
 
     fun buildAuthorizeUrl(session: DealerSession): String {
+        val redirectUri = URLBuilder(session.origin).apply {
+            path(listOf(encodedPath.takeLast(encodedPath.length-1), "providers/$id/callback").filterNot { it.isBlank() })
+        }
+
         return URLBuilder(authorizeURL).apply {
             parameters["response_type"] = "code"
             parameters["client_id"] = clientId
-            parameters["redirect_uri"] = URLBuilder(session.origin).path("providers/$id/callback").buildString()
+            parameters["redirect_uri"] = redirectUri.buildString()
             parameters["scope"] = scope
             parameters["state"] = session.id
         }.buildString()
