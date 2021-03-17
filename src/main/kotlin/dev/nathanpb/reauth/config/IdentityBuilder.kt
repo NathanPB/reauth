@@ -51,12 +51,10 @@ class IdentityMapper(private val schema: Map<String, String>) : Map<String, Stri
     fun reduce(builders: List<IdentityBuilder>): Document {
         val engine = Context.newBuilder().build()
 
-        val data = builders.mapNotNull {
-            val provider = it.provider
-            if (provider == null) null else {
-                "const ${provider.id} = ${it.data.toJson()};"
-            }
-        }.joinToString("\n")
+        val data = PROVIDERS.joinToString("\n") { provider ->
+            val builder = builders.firstOrNull { it.provider == provider }
+            "const ${provider.id} = ${builder?.data?.toJson() ?: "null"};"
+        }
 
         engine.eval("js", data)
 
